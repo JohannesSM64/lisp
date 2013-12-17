@@ -176,7 +176,7 @@
         (loop named check do
               (format t "Check which box? ")
               (setf *selection* (read))
-              (if (assoc *selection* *choices*)
+              (if (assoc *selection* (remove-unfulfilled *choices*))
                 (return-from check)
                 ;; else
                 (if (and (member *selection* (all-goal-symbols))
