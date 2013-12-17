@@ -1,10 +1,17 @@
 ;;; Gosu Yatzy
 ;;; Written by Johannes Langøy, December 2013
-(load "source/utils")
 
-(defun numbers (n dice)
-  (and (<= 1 (count n dice))
-       (* n (count n dice))))
+;; Bugs:
+;; - Tab completing a goal name and pressing return right away breaks
+;;   the next read-line. Pressing another key before return works around
+;;   this, somehow.
+
+(defun ones   (dice) (and (<= 1 (count 1 dice)) (* 1 (count 1 dice))))
+(defun twos   (dice) (and (<= 1 (count 2 dice)) (* 2 (count 2 dice))))
+(defun threes (dice) (and (<= 1 (count 3 dice)) (* 3 (count 3 dice))))
+(defun fours  (dice) (and (<= 1 (count 4 dice)) (* 4 (count 4 dice))))
+(defun fives  (dice) (and (<= 1 (count 5 dice)) (* 5 (count 5 dice))))
+(defun sixes  (dice) (and (<= 1 (count 6 dice)) (* 6 (count 6 dice))))
 
 (defun one-pair (dice)
   (let ((s nil))
@@ -74,25 +81,39 @@
   (when (apply #'= dice)
     50))
 
+(defvar *goals*
+  '((ones "Ones")
+    (twos "Twos")
+    (threes "Threes")
+    (fours "Fours")
+    (fives "Fives")
+    (sixes "Sixes")
+    (one-pair "One pair")
+    (two-pairs "Two pairs")
+    (three-of-a-kind "Three of a kind")
+    (four-of-a-kind "Four of a kind")
+    (small-straight "Small straight")
+    (large-straight "Large straight")
+    (house "House")
+    (chance "Chance")
+    (yatzy "Yatzy")))
+
 (defun check-all (dice)
-  `((ones "Ones" ,(numbers 1 dice))
-    (twos "Twos" ,(numbers 2 dice))
-    (threes "Threes" ,(numbers 3 dice))
-    (fours "Fours" ,(numbers 4 dice))
-    (fives "Fives" ,(numbers 5 dice))
-    (sixes "Sixes" ,(numbers 6 dice))
-    (one-pair "One pair" ,(one-pair dice))
-    (two-pairs "Two pairs" ,(two-pairs dice))
-    (three-of-a-kind "Three of a kind" ,(three-of-a-kind dice))
-    (four-of-a-kind "Four of a kind" ,(four-of-a-kind dice))
-    (small-straight "Small straight" ,(small-straight dice))
-    (large-straight "Large straight" ,(large-straight dice))
-    (house "House" ,(house dice))
-    (chance "Chance" ,(chance dice))
-    (yatzy "Yatzy" ,(yatzy dice))))
+  (mapcar (lambda (g) (cons (car g) (funcall (car g) dice)))
+          *goals*))
+
+(defun goal-string (goal)
+  (cadr (assoc goal *goals*)))
+
+(defun all-goal-symbols ()
+  (mapcar #'car *goals*))
 
 (defun remove-unfulfilled (checks)
-  (remove-if (lambda (x) (null (third x)))
+  (remove-if (lambda (x) (null (cdr x)))
+             checks))
+
+(defun remove-fulfilled (checks)
+  (remove-if (lambda (x) (not (null (cdr x))))
              checks))
 
 ;; Imperative part
@@ -110,43 +131,66 @@
           (princ dice)
           (fresh-line)
           (unless (= 3 n)
-            (princ "Enter which dice to keep: ")
-            (setf dice (read))
+            (loop named roll do
+                  (let ((i nil) (d nil))
+                    (princ "Enter which dice to keep: ")
+                    (setf d (read-line))
+                    (when (equal d "all")
+                      (return-from roll))
+                    (setf d (mapcar #'digit-char-p
+                                    (loop for x across d
+                                          collect x)))
+                    (dolist (x d)
+                      (when (not (member x dice))
+                        (setf i t)))
+                    (dolist (n '(1 2 3 4 5 6))
+                      (when (> (count n d) (count n dice))
+                        (setf i t)))
+                    (cond (i (format t "Invalid input.~%"))
+                          (t (setf dice d)
+                             (return-from roll)))))
             (incf n))
           (if (= 5 (length dice))
             (return-from turn)))
     dice))
 
 (defun game-loop ()
-  (defvar *score* 0)
   (defvar *checked-boxes* nil)
   (loop named game do
         ;; Interactively roll the dice.
         (setf *dice* (one-turn))
+        ;; UI improvement (I can probably think of something better..)
+        (sleep 1)
         ;; Get a list of choices for what do do with these dice.
-        (setf *choices* (remove-unfulfilled (check-all *dice*)))
+        (setf *choices* (check-all *dice*))
         ;; Delete the choices that are already used.
         (dolist (x *checked-boxes*)
-          (delete-if (lambda (y) (eq (first y) (first x)))
-                     *choices*))
+          (setf *choices* (remove-if (lambda (y) (eq (car y) (car x)))
+                                     *choices*)))
         ;; Print the choices.
-        (dolist (x *choices*)
-          (format t "~a: ~a~%" (second x) (third x)))
-        ;; Ask which choice to use.
+        (dolist (x (remove-unfulfilled *choices*))
+          (format t "   ~a: ~a~%" (goal-string (car x)) (cdr x)))
+        (dolist (x (remove-fulfilled *choices*))
+          (format t "       ~a: ~a~%" (goal-string (car x)) (cdr x)))
+        ;; Ask which choice to use, confirming that it's valid.
         (loop named check do
               (format t "Check which box? ")
               (setf *selection* (read))
               (if (assoc *selection* *choices*)
                 (return-from check)
-                (if (y-or-n-p "Cross out ~a? " *selection*)
+                ;; else
+                (if (and (member *selection* (all-goal-symbols))
+                         (y-or-n-p "Cross out ~a? " *selection*))
                   (return-from check))))
-        ;; Extract the points, if any.
-        (setf *points* (third (assoc *selection* *choices*)))
         ;; Update the list of checked boxes.
-        (push (list *selection* *points*) *checked-boxes*)
-        ;; Update the score.
-        (and *points* (incf *score* *points*))
+        (push (cons *selection* (cdr (assoc *selection* *choices*)))
+              *checked-boxes*)
         ;; Check if it's time to end the game.
-        (when (= (length *checked-boxes*) 15)
-          (format t "Game over. Final score: ~a~%" *score*)
+        (when (= (length *checked-boxes*) (length (all-goal-symbols)))
+          (format t "Game over.~%")
+          (dolist (x *checked-boxes*)
+            (format t "~a: ~a~%"
+                    (cadr (assoc (car x) *goals*))
+                    (cdr x)))
+          (format t "Score: ~a~%" (reduce #'+ (remove-if #'null (mapcar #'cdr *checked-boxes*))))
           (return-from game))))
