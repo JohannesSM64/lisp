@@ -3,8 +3,8 @@
 
 ;; Bugs:
 ;; - Tab completing a goal name and pressing return right away breaks
-;;   the next read-line. Pressing another key before return works around
-;;   this, somehow.
+;;   the next read-line by giving it an empty string. Pressing another
+;;   key before return works around this, somehow.
 
 (defun ones   (dice) (and (<= 1 (count 1 dice)) (* 1 (count 1 dice))))
 (defun twos   (dice) (and (<= 1 (count 2 dice)) (* 2 (count 2 dice))))
