@@ -1,5 +1,3 @@
-#!/usr/bin/clisp
-
 ;;; Gosu Yatzy
 ;;; Written by Johannes Langøy, December 2013
 
