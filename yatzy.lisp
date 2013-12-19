@@ -1,6 +1,9 @@
 ;;; Gosu Yatzy
 ;;; Written by Johannes Langøy, December 2013
 
+;; Bugs:
+;; - No error handling for "Check which box?" at :188.
+
 (defun ones   (dice) (and (<= 1 (count 1 dice)) (* 1 (count 1 dice))))
 (defun twos   (dice) (and (<= 1 (count 2 dice)) (* 2 (count 2 dice))))
 (defun threes (dice) (and (<= 1 (count 3 dice)) (* 3 (count 3 dice))))
@@ -167,14 +170,16 @@
         (sort *choices* (lambda (x y) (null (cdr y))))
         ;; Print the choices.
         (loop for n below (length *choices*) do
-              (princ n)
+              (princ (1+ n))
               (princ ") ")
-              (if (cdr (nth n *choices*))
-                (progn (princ (goal-string (car (nth n *choices*))))
+              (if (cdr (nth (1+ n) *choices*))
+                (progn (princ (goal-string (car (nth (1+ n)
+                                                     *choices*))))
                        (princ ": ")
-                       (princ (cdr (nth n *choices*))))
+                       (princ (cdr (nth (1+ n) *choices*))))
                 (progn (princ "__")
-                       (princ (goal-string (car (nth n *choices*))))
+                       (princ (goal-string (car (nth (1+ n)
+                                                     *choices*))))
                        (princ "__")))
               (fresh-line))
         ;; Ask which choice to use, confirming that it's valid.
