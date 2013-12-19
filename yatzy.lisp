@@ -2,7 +2,7 @@
 ;;; Written by Johannes Langøy, December 2013
 
 ;; Bugs:
-;; - No error handling for "Check which box?" at :188.
+;; - No error handling for parse-integer at :188.
 
 (defun ones   (dice) (and (<= 1 (count 1 dice)) (* 1 (count 1 dice))))
 (defun twos   (dice) (and (<= 1 (count 2 dice)) (* 2 (count 2 dice))))
@@ -172,21 +172,20 @@
         (loop for n below (length *choices*) do
               (princ (1+ n))
               (princ ") ")
-              (if (cdr (nth (1+ n) *choices*))
-                (progn (princ (goal-string (car (nth (1+ n)
-                                                     *choices*))))
+              (if (cdr (nth n *choices*))
+                (progn (princ (goal-string (car (nth n *choices*))))
                        (princ ": ")
-                       (princ (cdr (nth (1+ n) *choices*))))
+                       (princ (cdr (nth n *choices*))))
                 (progn (princ "__")
-                       (princ (goal-string (car (nth (1+ n)
-                                                     *choices*))))
+                       (princ (goal-string (car (nth n *choices*))))
                        (princ "__")))
               (fresh-line))
         ;; Ask which choice to use, confirming that it's valid.
         (loop named check do
               (format t "Check which box? ")
-              (setf *selection* (car (nth (parse-integer (read-line))
-                                     *choices*)))
+              (setf *selection* (car (nth (1- (parse-integer
+                                                (read-line)))
+                                          *choices*)))
               (if (assoc *selection* (remove-unfulfilled *choices*))
                 (return-from check)
                 ;; else
