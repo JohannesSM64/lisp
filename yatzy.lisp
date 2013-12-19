@@ -1,11 +1,6 @@
 ;;; Gosu Yatzy
 ;;; Written by Johannes Langøy, December 2013
 
-;; Bugs:
-;; - Tab completing a goal name and pressing return right away breaks
-;;   the next read-line by giving it an empty string. Pressing another
-;;   key before return works around this, somehow.
-
 (defun ones   (dice) (and (<= 1 (count 1 dice)) (* 1 (count 1 dice))))
 (defun twos   (dice) (and (<= 1 (count 2 dice)) (* 2 (count 2 dice))))
 (defun threes (dice) (and (<= 1 (count 3 dice)) (* 3 (count 3 dice))))
@@ -14,7 +9,7 @@
 (defun sixes  (dice) (and (<= 1 (count 6 dice)) (* 6 (count 6 dice))))
 
 (defun one-pair (dice)
-  (let ((s nil))
+  (let (s)
     (dolist (n '(6 5 4 3 2 1))
       (when (<= 2 (count n dice))
         (setf s (reduce #'+ (subseq (remove-if (lambda (x)
@@ -24,8 +19,8 @@
     s))
 
 (defun two-pairs (dice)
-  (let* ((l (mapcar (lambda (n) (list n (count n dice)))
-                    '(1 2 3 4 5 6))))
+  (let ((l (mapcar (lambda (n) (list n (count n dice)))
+                   '(1 2 3 4 5 6))))
     (when (= 2 (count 2 (mapcar #'cadr l)))
       (reduce #'+
               (remove-if #'null (mapcar (lambda (x)
@@ -34,7 +29,7 @@
                                         l))))))
 
 (defun three-of-a-kind (dice)
-  (let ((s nil))
+  (let (s)
     (dolist (n '(6 5 4 3 2 1))
       (when (<= 3 (count n dice))
         (setf s (reduce #'+ (subseq (remove-if (lambda (x)
@@ -44,7 +39,7 @@
     s))
 
 (defun four-of-a-kind (dice)
-  (let ((s nil))
+  (let (s)
     (dolist (n '(6 5 4 3 2 1))
       (when (<= 4 (count n dice))
         (setf s (reduce #'+ (subseq (remove-if (lambda (x)
@@ -124,7 +119,7 @@
   (append dice (roll-dice (- 5 (length dice)))))
 
 (defun one-turn ()
-  (let ((dice nil) (n 1))
+  (let ((n 1) dice)
     (loop named turn repeat 3 do
           (setf dice (roll-unkept-dice dice))
           (format t "Roll ~a: " n)
@@ -132,7 +127,7 @@
           (fresh-line)
           (unless (= 3 n)
             (loop named roll do
-                  (let ((i nil) (d nil))
+                  (let (i d)
                     (princ "Enter which dice to keep: ")
                     (setf d (read-line))
                     (when (equal d "all")
@@ -168,15 +163,25 @@
         (dolist (x *checked-boxes*)
           (setf *choices* (remove-if (lambda (y) (eq (car y) (car x)))
                                      *choices*)))
+        ;; Sort the choices for easier reading.
+        (sort *choices* (lambda (x y) (null (cdr y))))
         ;; Print the choices.
-        (dolist (x (remove-unfulfilled *choices*))
-          (format t "   ~a: ~a~%" (goal-string (car x)) (cdr x)))
-        (dolist (x (remove-fulfilled *choices*))
-          (format t "       ~a: ~a~%" (goal-string (car x)) (cdr x)))
+        (loop for n below (length *choices*) do
+              (princ n)
+              (princ ") ")
+              (if (cdr (nth n *choices*))
+                (progn (princ (goal-string (car (nth n *choices*))))
+                       (princ ": ")
+                       (princ (cdr (nth n *choices*))))
+                (progn (princ "__")
+                       (princ (goal-string (car (nth n *choices*))))
+                       (princ "__")))
+              (fresh-line))
         ;; Ask which choice to use, confirming that it's valid.
         (loop named check do
               (format t "Check which box? ")
-              (setf *selection* (read))
+              (setf *selection* (car (nth (parse-integer (read-line))
+                                     *choices*)))
               (if (assoc *selection* (remove-unfulfilled *choices*))
                 (return-from check)
                 ;; else
