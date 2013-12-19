@@ -1,3 +1,5 @@
+#!/usr/bin/clisp
+
 ;;; Gosu Yatzy
 ;;; Written by Johannes Langøy, December 2013
 
@@ -156,6 +158,7 @@
 
 (defun game-loop ()
   (defvar *checked-boxes* nil)
+  (format t "Welcome to Gosu Yatzy.~%")
   (loop named game do
         ;; Interactively roll the dice.
         (setf *dice* (one-turn))
@@ -194,3 +197,5 @@
                     (cdr x)))
           (format t "Score: ~a~%" (reduce #'+ (remove-if #'null (mapcar #'cdr *checked-boxes*))))
           (return-from game))))
+
+(game-loop)
