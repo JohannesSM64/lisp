@@ -4,6 +4,10 @@
 ;; Bugs:
 ;; - No error handling for parse-integer at :188.
 
+;; Ideas:
+;; - Sort results according to #'all-goal-symbols (how?)
+;; - Implement bonus.
+
 (defun ones   (dice) (and (<= 1 (count 1 dice)) (* 1 (count 1 dice))))
 (defun twos   (dice) (and (<= 1 (count 2 dice)) (* 2 (count 2 dice))))
 (defun threes (dice) (and (<= 1 (count 3 dice)) (* 3 (count 3 dice))))
@@ -188,7 +192,6 @@
                                           *choices*)))
               (if (assoc *selection* (remove-unfulfilled *choices*))
                 (return-from check)
-                ;; else
                 (if (and (member *selection* (all-goal-symbols))
                          (y-or-n-p "Cross out ~a? " *selection*))
                   (return-from check))))
@@ -198,10 +201,12 @@
         ;; Check if it's time to end the game.
         (when (= (length *checked-boxes*) (length (all-goal-symbols)))
           (format t "Game over.~%")
+          (sort *checked-boxes* (lambda (x y) (null (cdr y))))
           (dolist (x *checked-boxes*)
             (format t "~a: ~a~%"
                     (cadr (assoc (car x) *goals*))
                     (cdr x)))
+          (fresh-line)
           (format t "Score: ~a~%" (reduce #'+ (remove-if #'null (mapcar #'cdr *checked-boxes*))))
           (return-from game))))
 
