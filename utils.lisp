@@ -1,11 +1,13 @@
-;; (for (x a b) body)
+;; (for (x a b) body) {{{
+;; (do ((variable initial update)...) ((test1_body)...) body)
 (defmacro for (l &rest body)
   `(do ((,(first l) ,(second l) (1+ ,(first l))))
      ((> ,(first l) ,(third l)))
      ,@body))
+;; }}}
 
-;; Thanks to Rainer Joswig of StackOverflow for this:
-;; our clone of nthcdr called cdnth
+;; (cdnth (idx list)) {{{
+;; Thanks to Rainer Joswig of StackOverflow for this
 (defun cdnth (idx list)
   (nthcdr idx list))
 
@@ -25,3 +27,4 @@
                                          (progn (rplacd (nthcdr (1- ,idx-temp) ,getter) ,store)))
                                        ,store))
                                   `(nthcdr ,idx ,getter)))))
+;; }}}
