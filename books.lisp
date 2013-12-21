@@ -1,40 +1,35 @@
 ;; Functional part
-(defun get-author (book) (first book))
-(defun get-name (book) (second book))
-(defun get-year (book) (third book))
+(defmacro property (name func)
+  `(defun ,name (book)
+     (,func book)))
 
-(defun filter-author (author books)
-  (remove-if (lambda (x) (not (equal author (get-author x))))
-             books))
+(property author-of first)
+(property name-of second)
+(property year-of third)
 
-(defun filter-name (name books)
-  (remove-if (lambda (x) (not (equal name (get-name x))))
-             books))
+(defmacro filter (name &rest body)
+  `(defun ,name (x books)
+     (remove-if (lambda (y) ,@body)
+                books)))
 
-(defun filter-year (year books)
-  (remove-if (lambda (x) (not (equal year (get-year x))))
-             books))
+(filter author (not (equal x (author-of y))))
+(filter name (not (equal x (name-of y))))
+(filter year (not (equal x (year-of y))))
+(filter before (< x (year-of y)))
+(filter after (> x (year-of y)))
 
-(defun filter-before (year books)
-  (remove-if (lambda (x) (< year (get-year x)))
-             books))
-
-(defun filter-after (year books)
-  (remove-if (lambda (x) (> year (get-year x)))
-             books))
-
-(defun filter-range (after before books)
-  (filter-after after (filter-before before books)))
+(defun range (x y books)
+  (after x (before y books)))
 
 (defun sort-year (books)
   (let ((temp (copy-list books)))
-    (sort temp (lambda (x y) (< (get-year x) (get-year y))))))
+    (sort temp (lambda (x y) (< (year-of x) (year-of y))))))
 
 ;; Imperative part
 (defun format-books (books)
   (dolist (b books)
     (format t "~a: ~a (~a)~%"
-            (get-author b) (get-name b) (get-year b))))
+            (author-of b) (name-of b) (year-of b))))
 
 (defun read-books ()
   (with-open-file (f "book-list")
