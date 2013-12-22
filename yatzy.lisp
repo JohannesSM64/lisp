@@ -1,12 +1,8 @@
 ;;; Gosu Yatzy
 ;;; Written by Johannes Langøy, December 2013
 
-;; Bugs:
-;; - No error handling for parse-integer at :188.
-
-;; Ideas:
-;; - Sort results according to #'all-goal-symbols (how?)
-;; - Implement bonus.
+;; TODO:
+;; - Implement error handling for parse-integer at :200.
 
 (defun ones   (dice) (and (<= 1 (count 1 dice)) (* 1 (count 1 dice))))
 (defun twos   (dice) (and (<= 1 (count 2 dice)) (* 2 (count 2 dice))))
@@ -110,6 +106,15 @@
 (defun all-goal-symbols ()
   (mapcar #'car *goals*))
 
+(defun check-bonus (boxes)
+  (let ((x 50))
+    (dolist (g '(ones twos threes fours fives sixes))
+      (if (or (not (assoc g boxes))
+              (not (>= (cdr (assoc g boxes))
+                   (* 3 (funcall g '(1 2 3 4 5 6))))))
+        (setf x nil)))
+    x))
+
 (defun remove-unfulfilled (checks)
   (remove-if (lambda (x) (null (cdr x)))
              checks))
@@ -160,6 +165,8 @@
   (defvar *checked-boxes* nil)
   (format t "Welcome to Gosu Yatzy.~%")
   (loop named game do
+        ;; Initialize random.
+        (setf *random-state* (make-random-state t))
         ;; Interactively roll the dice.
         (setf *dice* (one-turn))
         ;; UI improvement (I can probably think of something better..)
@@ -202,12 +209,20 @@
         (when (= (length *checked-boxes*) (length (all-goal-symbols)))
           (format t "Game over.~%")
           (sort *checked-boxes* (lambda (x y) (null (cdr y))))
-          (dolist (x *checked-boxes*)
+          (dolist (x (mapcar (lambda (x) (assoc x *checked-boxes*))
+                             (all-goal-symbols)))
             (format t "~a: ~a~%"
                     (cadr (assoc (car x) *goals*))
                     (cdr x)))
-          (fresh-line)
-          (format t "Score: ~a~%" (reduce #'+ (remove-if #'null (mapcar #'cdr *checked-boxes*))))
+          (setf *score* (reduce #'+ (remove-if #'null (mapcar #'cdr *checked-boxes*))))
+          (setf *bonus* (check-bonus *checked-boxes*))
+          (if *bonus* (incf *score* *bonus*))
+          (format t "Bonus: ~a~%" *bonus*)
+          (format t "Score: ~a~%" *score*)
           (return-from game))))
+
+(defun test-game-loop ()
+  (setf *checked-boxes* '((ones . 1) (twos . 6) (threes . 9) (fours . 12) (fives . 15) (sixes . 18) (one-pair . 12) (two-pairs . 18) (three-of-a-kind . 15) (four-of-a-kind . 20) (small-straight . 15) (large-straight . nil) (house . 20)))
+    (game-loop))
 
 (game-loop)

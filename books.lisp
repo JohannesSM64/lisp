@@ -1,4 +1,3 @@
-;; Functional part
 (defmacro property (name func)
   `(defun ,name (book)
      (,func book)))
@@ -8,7 +7,7 @@
 (property year-of third)
 
 (defmacro filter (name &rest body)
-  `(defun ,name (x books)
+  `(defun ,name (x &optional (books *books*))
      (remove-if (lambda (y) ,@body)
                 books)))
 
@@ -25,8 +24,7 @@
   (let ((temp (copy-list books)))
     (sort temp (lambda (x y) (< (year-of x) (year-of y))))))
 
-;; Imperative part
-(defun format-books (books)
+(defun fb (books) ; format-books
   (dolist (b books)
     (format t "~a: ~a (~a)~%"
             (author-of b) (name-of b) (year-of b))))
