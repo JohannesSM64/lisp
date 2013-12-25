@@ -108,11 +108,11 @@
 
 (defun check-bonus (boxes)
   (let ((x 50))
-    (dolist (g '(ones twos threes fours fives sixes))
-      (if (or (not (assoc g boxes))
-              (not (>= (cdr (assoc g boxes))
-                   (* 3 (funcall g '(1 2 3 4 5 6))))))
-        (setf x nil)))
+    (loop for n from 0 to 5 do
+          (if (not (>= (cdr (assoc (nth n '(ones twos threes
+                                            fours fives sixes)) boxes))
+                       (* 3 (1+ n))))
+            (setf x nil)))
     x))
 
 (defun remove-unfulfilled (checks)
@@ -222,7 +222,7 @@
           (return-from game))))
 
 (defun test-game-loop ()
-  (setf *checked-boxes* '((ones . 1) (twos . 6) (threes . 9) (fours . 12) (fives . 15) (sixes . 18) (one-pair . 12) (two-pairs . 18) (three-of-a-kind . 15) (four-of-a-kind . 20) (small-straight . 15) (large-straight . nil) (house . 20)))
+  (setf *checked-boxes* '((ones . 3) (twos . 6) (threes . 9) (fours . 12) (fives . 15) (sixes . 18) (one-pair . 12) (two-pairs . 18) (three-of-a-kind . 15) (four-of-a-kind . 20) (small-straight . 15) (large-straight . nil) (house . 20)))
     (game-loop))
 
 (game-loop)
