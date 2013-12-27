@@ -165,7 +165,7 @@
     dice))
 
 (defun game-loop ()
-  (setf boxes nil)
+  (defvar boxes nil)
   (format t "Welcome to Gosu Yatzy.~%")
   (loop named game do
         ;; Initialize random.
