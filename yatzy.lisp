@@ -1,6 +1,9 @@
 ;;; Gosu Yatzy
 ;;; Written by Johannes Langøy, December 2013
 
+;; TODO:
+;; - Error handling for selections at :196.
+
 (defun ones   (dice) (and (<= 1 (count 1 dice)) (* 1 (count 1 dice))))
 (defun twos   (dice) (and (<= 1 (count 2 dice)) (* 2 (count 2 dice))))
 (defun threes (dice) (and (<= 1 (count 3 dice)) (* 3 (count 3 dice))))
@@ -163,58 +166,59 @@
 
 (defun game-loop ()
   (setf boxes nil)
-    (format t "Welcome to Gosu Yatzy.~%")
-    (loop named game do
-          ;; Initialize random.
-          (setf *random-state* (make-random-state t))
-          ;; Interactively roll the dice.
-          (setf dice (one-turn))
-          ;; Get a list of choices for what do do with these dice.
-          (setf choices (check-all dice))
-          ;; Delete the choices that are already used.
-          (dolist (x boxes)
-            (setf choices (remove-if (lambda (y) (eq (car y) (car x)))
-                                       choices)))
-          ;; Separate fulfilled and unfulfilled goals.
-          (setf cross-choices (remove-fulfilled choices))
-          (setf choices       (remove-unfulfilled choices))
-          ;; Print the choices.
-          (loop for n below (length choices) do
-                (format t "~a) ~a: ~a~%"
-                        (1+ n)
-                        (goal-string (car (nth n choices)))
-                        (cdr (nth n choices))))
-          (loop for n below (length cross-choices) do
-                (format t "~a) __~a__~%"
-                        (code-char (+ 65 n))
-                        (goal-string (nth n cross-choices))))
-          ;; Ask which choice to use.
-          (let* ((input (read-line))
-                 (int (parse-integer input :junk-allowed t)))
-            (setf selection
-                  (if int
-                    (nth (1- int) choices)
-                    (list (nth (- (char-code (char-upcase
-                                               (character input)))
-                                  65)
-                         cross-choices)))))
-          ;; Update the list of checked boxes.
-          (push selection boxes)
-          ;; Check if it's time to end the game.
-          (when (= (length boxes) (length (all-goal-symbols)))
-            (format t "Game over.~%")
-            (sort boxes (lambda (x y) (null (cdr y))))
-            (dolist (x (mapcar (lambda (x) (assoc x boxes))
-                               (all-goal-symbols)))
-              (format t "~a: ~a~%"
-                      (cadr (assoc (car x) *goals*))
-                      (cdr x)))
-            (setf score
-                  (reduce #'+ (remove-if #'null (mapcar #'cdr boxes))))
-            (setf bonus (check-bonus boxes))
-            (if bonus (incf score bonus))
-            (format t "Bonus: ~a~%" bonus)
-            (format t "Score: ~a~%" score)
-            (return-from game))))
+  (format t "Welcome to Gosu Yatzy.~%")
+  (loop named game do
+        ;; Initialize random.
+        (setf *random-state* (make-random-state t))
+        ;; Interactively roll the dice.
+        (setf dice (one-turn))
+        ;; Get a list of choices for what do do with these dice.
+        (setf choices (check-all dice))
+        ;; Delete the choices that are already used.
+        (dolist (x boxes)
+          (setf choices (remove-if (lambda (y) (eq (car y) (car x)))
+                                   choices)))
+        ;; Separate fulfilled and unfulfilled goals.
+        (setf cross-choices (remove-fulfilled choices))
+        (setf choices       (remove-unfulfilled choices))
+        ;; Print the choices.
+        (loop for n below (length choices) do
+              (format t "~a) ~a: ~a~%"
+                      (1+ n)
+                      (goal-string (car (nth n choices)))
+                      (cdr (nth n choices))))
+        (loop for n below (length cross-choices) do
+              (format t "~a) __~a__~%"
+                      (code-char (+ 65 n))
+                      (goal-string (nth n cross-choices))))
+        ;; Get a selection.
+        (princ "Enter your selection: ")
+        (let* ((input (read-line))
+               (int (parse-integer input :junk-allowed t)))
+          (setf selection
+                (if int
+                  (nth (1- int) choices)
+                  (list (nth (- (char-code (char-upcase
+                                             (char input 0)))
+                                65)
+                             cross-choices)))))
+        ;; Update the list of checked boxes.
+        (push selection boxes)
+        ;; Check if it's time to end the game.
+        (when (= (length boxes) (length (all-goal-symbols)))
+          (format t "Game over.~%")
+          (sort boxes (lambda (x y) (null (cdr y))))
+          (dolist (x (mapcar (lambda (x) (assoc x boxes))
+                             (all-goal-symbols)))
+            (format t "~a: ~a~%"
+                    (cadr (assoc (car x) *goals*))
+                    (cdr x)))
+          (setf score
+                (reduce #'+ (remove-if #'null (mapcar #'cdr boxes))))
+          (setf bonus (check-bonus boxes))
+          (if bonus (incf score bonus))
+          (format t "Bonus: ~a~%" bonus)
+          (format t "Score: ~a~%" score)
+          (return-from game))))
 
 (game-loop)
