@@ -15,9 +15,9 @@
   (let (s)
     (dolist (n '(6 5 4 3 2 1))
       (when (<= 2 (count n dice))
-        (setf s (reduce #'+ (subseq (remove-if (lambda (x)
-                                                 (not (= x n))) dice)
-                                    0 2)))
+        (setf s (apply #'+ (subseq (remove-if (lambda (x)
+                                                (not (= x n))) dice)
+                                   0 2)))
         (return-from nil)))
     s))
 
@@ -25,19 +25,19 @@
   (let ((l (mapcar (lambda (n) (list n (count n dice)))
                    '(1 2 3 4 5 6))))
     (when (= 2 (count 2 (mapcar #'cadr l)))
-      (reduce #'+
-              (remove-if #'null (mapcar (lambda (x)
-                                          (if (= (cadr x) 2)
-                                            (* (car x) (cadr x))))
-                                        l))))))
+      (apply #'+
+             (remove-if #'null (mapcar (lambda (x)
+                                         (if (= (cadr x) 2)
+                                           (* (car x) (cadr x))))
+                                       l))))))
 
 (defun three-of-a-kind (dice)
   (let (s)
     (dolist (n '(6 5 4 3 2 1))
       (when (<= 3 (count n dice))
-        (setf s (reduce #'+ (subseq (remove-if (lambda (x)
-                                                 (not (= x n))) dice)
-                                    0 3)))
+        (setf s (apply #'+ (subseq (remove-if (lambda (x)
+                                                (not (= x n))) dice)
+                                   0 3)))
         (return-from nil)))
     s))
 
@@ -45,9 +45,9 @@
   (let (s)
     (dolist (n '(6 5 4 3 2 1))
       (when (<= 4 (count n dice))
-        (setf s (reduce #'+ (subseq (remove-if (lambda (x)
-                                                 (not (= x n))) dice)
-                                    0 4)))
+        (setf s (apply #'+ (subseq (remove-if (lambda (x)
+                                                (not (= x n))) dice)
+                                   0 4)))
         (return-from nil)))
     s))
 
@@ -66,14 +66,14 @@
                     '(1 2 3 4 5 6)))
          (lc (mapcar #'cadr l)))
     (when (and (find 2 lc) (find 3 lc))
-      (reduce #'+
-              (remove-if #'null (mapcar (lambda (x)
-                                          (if (member (cadr x) '(2 3))
-                                            (* (car x) (cadr x))))
-                                        l))))))
+      (apply #'+
+             (remove-if #'null (mapcar (lambda (x)
+                                         (if (member (cadr x) '(2 3))
+                                           (* (car x) (cadr x))))
+                                       l))))))
 
 (defun chance (dice)
-  (reduce #'+ dice))
+  (apply #'+ dice))
 
 (defun yatzy (dice)
   (when (apply #'= dice)
@@ -107,15 +107,11 @@
   (mapcar #'car *goals*))
 
 (defun check-bonus (boxes)
-  (let ((x 50))
-    (loop for n from 0 to 5 do
-          (let ((v (cdr (assoc (nth n '(ones twos threes
-                                        fours fives sixes))
-                               boxes))))
-            (if (or (not v)
-                    (not (>= v (* 3 (1+ n)))))
-              (setf x nil))))
-    x))
+  (if (>= (apply #'+ (mapcar (lambda (g) (cdr (assoc g boxes)))
+                             '(ones twos threes fours fives sixes)))
+          63)
+    50
+    nil))
 
 (defun remove-unfulfilled (checks)
   (remove-if (lambda (x) (null (cdr x)))
@@ -124,7 +120,7 @@
 (defun remove-fulfilled (checks)
   (mapcar #'car
           (remove-if (lambda (x) (cdr x))
-             checks)))
+                     checks)))
 
 ;; Imperative part
 (defun roll-dice (amount)
@@ -157,8 +153,8 @@
                         (setf i t)))
                     (if i
                       (format t "Invalid input.~%"))
-                      (progn (setf dice d)
-                             (return-from roll))))
+                    (progn (setf dice d)
+                           (return-from roll))))
             (incf n))
           (if (= 5 (length dice))
             (return-from turn)))
@@ -214,7 +210,7 @@
                     (cadr (assoc (car x) *goals*))
                     (cdr x)))
           (setf score
-                (reduce #'+ (remove-if #'null (mapcar #'cdr boxes))))
+                (apply #'+ (remove-if #'null (mapcar #'cdr boxes))))
           (setf bonus (check-bonus boxes))
           (if bonus (incf score bonus))
           (format t "Bonus: ~a~%" bonus)
