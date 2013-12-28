@@ -6,6 +6,12 @@
      ,@body))
 ;; }}}
 
+;; (rand n) {{{
+(defmacro rand (&rest args)
+  `(let ((*random-state* (make-random-state t)))
+     (random ,@args)))
+;; }}}
+
 ;; (cdnth (idx lst)) {{{
 (defun cdnth (idx lst)
   (nthcdr idx lst))
@@ -31,21 +37,18 @@
 
 ;; (shuffle lst) {{{
 (defun shuffle (lst)
-  (setf *random-state* (make-random-state t))
   (let ((l (copy-list lst)))
     (loop for n below (length l) do
           (rotatef (nth n l)
-                   (nth (random (length l)) l)))
+                   (nth (rand (length l)) l)))
     l))
 ;; }}}
 
 ;; (coinflip) {{{
 (defun coinflip (&rest ignore)
-  (setf *random-state* (make-random-state t))
-  (> (random 10) 4))
+  (> (rand 10) 4))
 ;; }}}
 
 ;; (randnth lst) {{{
 (defun randnth (lst)
-  (setf *random-state* (make-random-state t))
-  (nth (random (length lst)) lst))
+  (nth (rand (length lst)) lst))
