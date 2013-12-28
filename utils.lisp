@@ -39,8 +39,13 @@
     l))
 ;; }}}
 
-;; (randomly) {{{
-(defun randomly (&rest ignore)
+;; (coinflip) {{{
+(defun coinflip (&rest ignore)
   (setf *random-state* (make-random-state t))
   (> (random 10) 4))
 ;; }}}
+
+;; (randnth lst) {{{
+(defun randnth (lst)
+  (setf *random-state* (make-random-state t))
+  (nth (random (length lst)) lst))
