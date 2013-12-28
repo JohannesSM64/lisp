@@ -6,15 +6,15 @@
      ,@body))
 ;; }}}
 
-;; (cdnth (idx list)) {{{
-;; Thanks to Rainer Joswig of StackOverflow for this
-(defun cdnth (idx list)
-  (nthcdr idx list))
+;; (cdnth (idx lst)) {{{
+(defun cdnth (idx lst)
+  (nthcdr idx lst))
 
-;; support for (cdnth <idx> <list>) as an assignable place
-(define-setf-expander cdnth (idx list &environment env)
+;; support for (cdnth <idx> <lst>) as an assignable place
+;; Thanks to Rainer Joswig of StackOverflow for this
+(define-setf-expander cdnth (idx lst &environment env)
                       (multiple-value-bind (dummies vals newval setter getter)
-                        (get-setf-expansion list env)
+                        (get-setf-expansion lst env)
                         (let ((store (gensym))
                               (idx-temp (gensym)))
                           (values dummies
@@ -27,4 +27,20 @@
                                          (progn (rplacd (nthcdr (1- ,idx-temp) ,getter) ,store)))
                                        ,store))
                                   `(nthcdr ,idx ,getter)))))
+;; }}}
+
+;; (shuffle lst) {{{
+(defun shuffle (lst)
+  (setf *random-state* (make-random-state t))
+  (let ((l (copy-list lst)))
+    (loop for n below (length l) do
+          (rotatef (nth n l)
+                   (nth (random (length l)) l)))
+    l))
+;; }}}
+
+;; (randomly) {{{
+(defun randomly (&rest ignore)
+  (setf *random-state* (make-random-state t))
+  (> (random 10) 4))
 ;; }}}
