@@ -110,8 +110,7 @@
   (if (>= (apply #'+ (mapcar (lambda (g) (cdr (assoc g boxes)))
                              '(ones twos threes fours fives sixes)))
           63)
-    50
-    nil))
+    50))
 
 (defun remove-unfulfilled (checks)
   (remove-if (lambda (x) (null (cdr x)))
