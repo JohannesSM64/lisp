@@ -24,9 +24,12 @@
   (subseq (shuffle deck) 0 5))
 
 (defun hand-flush (hand)
-  (let ((x t)
-        (d (mapcar #'card-suit hand)))
-    (dolist (c d)
-      (if (not (eq c (car d)))
-        (setf x nil)))
-    x))
+  (let ((lst (mapcar #'card-suit hand)))
+    (not (member nil (mapcar (lambda (x) (eq x (car lst)))
+                             lst)))))
+
+(defmacro test-func (&rest body)
+  `(loop with x = 0 do
+         (if ,@body
+           (return-from nil x)
+           (incf x))))
