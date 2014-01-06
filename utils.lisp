@@ -52,3 +52,4 @@
 ;; (randnth lst) {{{
 (defun randnth (lst)
   (nth (rand (length lst)) lst))
+;; }}}
