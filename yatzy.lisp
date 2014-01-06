@@ -1,8 +1,5 @@
 ;;; Gosu Yatzy
-;;; Written by Johannes Langøy, December 2013
-
-;; TODO:
-;; - Error handling for selections at :196.
+;;; Written by Johannes Langøy, December 2013 - January 2014
 
 (defun ones   (dice) (and (<= 1 (count 1 dice)) (* 1 (count 1 dice))))
 (defun twos   (dice) (and (<= 1 (count 2 dice)) (* 2 (count 2 dice))))
@@ -187,16 +184,22 @@
                       (code-char (+ 65 n))
                       (goal-string (nth n cross-choices))))
         ;; Get a selection.
-        (princ "Enter your selection: ")
-        (let* ((input (read-line))
-               (int (parse-integer input :junk-allowed t)))
-          (setf selection
+        (setf selection nil)
+        (loop named check do
+              (princ "Enter your selection: ")
+              (let* ((input (read-line))
+                     (int (parse-integer input :junk-allowed t)))
                 (if int
-                  (nth (1- int) choices)
-                  (list (nth (- (char-code (char-upcase
-                                             (char input 0)))
-                                65)
-                             cross-choices)))))
+                  (setf selection (nth (1- int) choices))
+                  (let ((cc (- (char-code (char-upcase (char input 0)))
+                               65)))
+                    (if (>= cc 0)
+                      (let ((chr (nth cc cross-choices)))
+                        (if chr
+                          (setf selection (list chr)))))))
+                (if selection
+                  (return-from check)
+                  (format t "Invalid input.~%"))))
         ;; Update the list of checked boxes.
         (push selection boxes)
         ;; Check if it's time to end the game.
