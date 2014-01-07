@@ -118,9 +118,9 @@
                       (when (> (count n d) (count n dice))
                         (setf i t)))
                     (if i
-                      (format t "Invalid input.~%"))
-                    (progn (setf dice d)
-                           (return-from roll))))
+                      (format t "Invalid input.~%")
+                      (progn (setf dice d)
+                             (return-from roll)))))
             (incf n))
           (if (= 5 (length dice))
             (return-from turn)))
@@ -141,11 +141,11 @@
           (setf choices (remove-if (lambda (y) (eq (car y) (car x)))
                                    choices)))
         ;; Separate fulfilled and unfulfilled goals.
-        (setf choices (remove-if (lambda (x) (null (cdr x)))
-                                 checks))
         (setf cross-choices (mapcar #'car
                                     (remove-if (lambda (x) (cdr x))
-                                               checks)))
+                                               choices)))
+        (setf choices (remove-if (lambda (x) (null (cdr x)))
+                                 choices))
         ;; Print the choices.
         (loop for n below (length choices) do
               (format t "~a) ~a: ~a~%"
