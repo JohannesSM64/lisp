@@ -9,14 +9,9 @@
 (defun sixes  (dice) (and (<= 1 (count 6 dice)) (* 6 (count 6 dice))))
 
 (defun one-pair (dice)
-  (let (s)
-    (dolist (n '(6 5 4 3 2 1))
-      (when (<= 2 (count n dice))
-        (setf s (apply #'+ (subseq (remove-if (lambda (x)
-                                                (not (= x n))) dice)
-                                   0 2)))
-        (return-from nil)))
-    s))
+  (dolist (n '(6 5 4 3 2 1))
+    (when (<= 2 (count n dice))
+      (return-from nil (* n 2)))))
 
 (defun two-pairs (dice)
   (let ((l (mapcar (lambda (n) (list n (count n dice)))
@@ -29,24 +24,14 @@
                                        l))))))
 
 (defun three-of-a-kind (dice)
-  (let (s)
-    (dolist (n '(6 5 4 3 2 1))
-      (when (<= 3 (count n dice))
-        (setf s (apply #'+ (subseq (remove-if (lambda (x)
-                                                (not (= x n))) dice)
-                                   0 3)))
-        (return-from nil)))
-    s))
+  (dolist (n '(6 5 4 3 2 1))
+    (when (<= 3 (count n dice))
+      (return-from nil (* n 3)))))
 
 (defun four-of-a-kind (dice)
-  (let (s)
-    (dolist (n '(6 5 4 3 2 1))
-      (when (<= 4 (count n dice))
-        (setf s (apply #'+ (subseq (remove-if (lambda (x)
-                                                (not (= x n))) dice)
-                                   0 4)))
-        (return-from nil)))
-    s))
+  (dolist (n '(6 5 4 3 2 1))
+    (when (<= 4 (count n dice))
+      (return-from nil (* n 4)))))
 
 (defun small-straight (dice)
   (unless (member nil (mapcar (lambda (n) (find n dice))
@@ -187,19 +172,22 @@
         (setf selection nil)
         (loop named check do
               (princ "Enter your selection: ")
-              (let* ((input (read-line))
-                     (int (parse-integer input :junk-allowed t)))
-                (if int
-                  (setf selection (nth (1- int) choices))
-                  (let ((cc (- (char-code (char-upcase (char input 0)))
-                               65)))
-                    (if (>= cc 0)
-                      (let ((chr (nth cc cross-choices)))
-                        (if chr
-                          (setf selection (list chr)))))))
-                (if selection
-                  (return-from check)
-                  (format t "Invalid input.~%"))))
+              (let ((input (read-line)))
+                (if (not (= (length input) 1))
+                  (format t "Invalid input.~%")
+                  (let ((int (parse-integer input :junk-allowed t)))
+                    (if int
+                      (setf selection (nth (1- int) choices))
+                      (let ((cc (- (char-code (char-upcase
+                                                (char input 0)))
+                                   65)))
+                        (if (>= cc 0)
+                          (let ((chr (nth cc cross-choices)))
+                            (if chr
+                              (setf selection (list chr)))))))
+                    (if selection
+                      (return-from check)
+                      (format t "Invalid input.~%"))))))
         ;; Update the list of checked boxes.
         (push selection boxes)
         ;; Check if it's time to end the game.
