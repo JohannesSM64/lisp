@@ -1,12 +1,13 @@
 ;;; Gosu Yatzy
 ;;; Written by Johannes Langøy, December 2013 - January 2014
 
-(defun ones   (dice) (and (<= 1 (count 1 dice)) (* 1 (count 1 dice))))
-(defun twos   (dice) (and (<= 1 (count 2 dice)) (* 2 (count 2 dice))))
-(defun threes (dice) (and (<= 1 (count 3 dice)) (* 3 (count 3 dice))))
-(defun fours  (dice) (and (<= 1 (count 4 dice)) (* 4 (count 4 dice))))
-(defun fives  (dice) (and (<= 1 (count 5 dice)) (* 5 (count 5 dice))))
-(defun sixes  (dice) (and (<= 1 (count 6 dice)) (* 6 (count 6 dice))))
+(defmacro numfunc (name n)
+  `(defun ,name (dice)
+     (if (<= 1 (count ,n dice))
+       (* ,n (count ,n dice)))))
+
+(numfunc ones  1) (numfunc twos  2) (numfunc threes 3)
+(numfunc fours 4) (numfunc fives 5) (numfunc sixes  6)
 
 (defun one-pair (dice)
   (dolist (n '(6 5 4 3 2 1))
@@ -40,15 +41,12 @@
     20))
 
 (defun house (dice)
-  (let* ((l (mapcar (lambda (n) (list n (count n dice)))
-                    '(1 2 3 4 5 6)))
-         (lc (mapcar #'cadr l)))
-    (when (and (find 2 lc) (find 3 lc))
-      (apply #'+
-             (remove-if #'null (mapcar (lambda (x)
-                                         (if (member (cadr x) '(2 3))
-                                           (* (car x) (cadr x))))
-                                       l))))))
+  (let (two three)
+    (loop for n from 1 to 6 do
+      (if (= 2 (count n dice)) (setq two n))
+      (if (= 3 (count n dice)) (setq three n)))
+    (if (and two three)
+      (+ (* 2 two) (* 3 three)))))
 
 (defun chance (dice)
   (apply #'+ dice))
