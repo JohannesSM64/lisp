@@ -88,15 +88,6 @@
           63)
     50))
 
-(defun remove-unfulfilled (checks)
-  (remove-if (lambda (x) (null (cdr x)))
-             checks))
-
-(defun remove-fulfilled (checks)
-  (mapcar #'car
-          (remove-if (lambda (x) (cdr x))
-                     checks)))
-
 ;; Imperative part
 (defun roll-dice (amount)
   (loop repeat amount collect (1+ (random 6))))
@@ -150,8 +141,11 @@
           (setf choices (remove-if (lambda (y) (eq (car y) (car x)))
                                    choices)))
         ;; Separate fulfilled and unfulfilled goals.
-        (setf cross-choices (remove-fulfilled choices))
-        (setf choices       (remove-unfulfilled choices))
+        (setf choices (remove-if (lambda (x) (null (cdr x)))
+                                 checks))
+        (setf cross-choices (mapcar #'car
+                                    (remove-if (lambda (x) (cdr x))
+                                               checks)))
         ;; Print the choices.
         (loop for n below (length choices) do
               (format t "~a) ~a: ~a~%"
