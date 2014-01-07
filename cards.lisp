@@ -7,7 +7,7 @@
 (defun make-deck ()
   (let (deck)
     (dolist (s *suits*)
-      (setf deck (append deck
+      (setq deck (append deck
                          (mapcar (lambda (c) (cons (car s) c))
                                  *values*))))
     deck))
@@ -23,13 +23,22 @@
 (defun make-hand (deck)
   (subseq (shuffle deck) 0 5))
 
-(defun hand-flush (hand)
+(defun check-flush (hand)
   (let ((lst (mapcar #'card-suit hand)))
     (not (member nil (mapcar (lambda (x) (eq x (car lst)))
                              lst)))))
 
+(defun check-pair (hand)
+  (let ((lst (mapcar #'card-value hand)))
+    (dolist (v *values*)
+      (if (>= (count v lst) 2)
+        (return-from nil t)))))
+
 (defmacro test-func (&rest body)
-  `(loop with x = 0 do
+  `(loop with x = 1 do
          (if ,@body
            (return-from nil x)
            (incf x))))
+
+(defun average (lst)
+  (/ (apply #'+ lst) (length lst)))
