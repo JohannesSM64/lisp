@@ -1,0 +1,1 @@
+(loop (shell (read-line)))
