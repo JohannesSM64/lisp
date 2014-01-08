@@ -1,1 +1,2 @@
-(loop (shell (read-line)))
+(loop (princ "> ")
+      (shell (read-line)))
