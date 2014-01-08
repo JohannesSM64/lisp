@@ -68,10 +68,6 @@
     (chance "Chance")
     (yatzy "Yatzy")))
 
-(defun check-all (dice)
-  (mapcar (lambda (g) (cons (car g) (funcall (car g) dice)))
-          *goals*))
-
 (defun goal-string (goal)
   (cadr (assoc goal *goals*)))
 
@@ -130,12 +126,16 @@
         (setf *random-state* (make-random-state t))
         ;; Interactively roll the dice.
         (setf dice (one-turn))
-        ;; Get a list of choices for what do do with these dice.
-        (setf choices (check-all dice))
-        ;; Delete the choices that are already used.
+        ;; Initialize choices.
+        (setf choices *goals*)
+        ;; Remove the choices that are already used.
         (dolist (x boxes)
           (setf choices (remove-if (lambda (y) (eq (car y) (car x)))
-                                   choices)))
+                                   *goals*)))
+        ;; Get our choices.
+        (setf choices (mapcar (lambda (g)
+                                (cons (car g) (funcall (car g) dice)))
+                              choices))
         ;; Separate fulfilled and unfulfilled goals.
         (setf cross-choices (mapcar #'car
                                     (remove-if (lambda (x) (cdr x))
@@ -182,7 +182,7 @@
                              (all-goal-symbols)))
             (format t "~a: ~a~%"
                     (cadr (assoc (car x) *goals*))
-                    (cdr x)))
+                    (or (cdr x) "--")))
           (setf score
                 (apply #'+ (remove-if #'null (mapcar #'cdr boxes))))
           (setf bonus (check-bonus boxes))
