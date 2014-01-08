@@ -38,7 +38,7 @@
   (unless (member nil (loop for x from 2 to 6 collect (find n dice)))
     20))
 
-(defun house-2 (dice)
+(defun house (dice)
   (let ((r (loop for n from 1 to 6 collect (count n dice))))
     (if (and (find 2 r) (find 3 r))
       (+ (* 2 (1+ (position 2 r)))
