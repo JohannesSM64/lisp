@@ -1,16 +1,13 @@
 (load "utils.lisp")
 
 (defvar *values* '(A 2 3 4 5 6 7 8 9 10 J Q K))
-(defvar *suits* '((spades   . #\U2660) (hearts . #\U2665)
-                  (diamonds . #\U2666) (clubs  . #\U2663)))
+(defvar *suits* '((clubs  . #\U2663) (diamonds . #\U2666)
+                  (hearts . #\U2665) (spades   . #\U2660)))
 
 (defun make-deck ()
-  (let (deck)
-    (dolist (s *suits*)
-      (setq deck (append deck
-                         (mapcar (lambda (c) (cons (car s) c))
-                                 *values*))))
-    deck))
+  (loop for s in *suits* append
+        (loop for v in *values* collect
+              (cons (car s) v))))
 
 (defun card-suit        (card) (car card))
 (defun card-suit-symbol (card) (cdr (assoc (car card) *suits*)))
