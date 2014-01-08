@@ -10,7 +10,7 @@
 (numfunc fours 4) (numfunc fives 5) (numfunc sixes  6)
 
 (defun one-pair (dice)
-  (dolist (n '(6 5 4 3 2 1))
+  (loop for n from 6 downto 1 do
     (when (<= 2 (count n dice))
       (return-from nil (* n 2)))))
 
@@ -21,32 +21,28 @@
       (apply #'+ (mapcar (lambda (n) (* 2 n)) l)))))
 
 (defun three-of-a-kind (dice)
-  (dolist (n '(6 5 4 3 2 1))
+  (loop for n from 6 downto 1 do
     (when (<= 3 (count n dice))
       (return-from nil (* n 3)))))
 
 (defun four-of-a-kind (dice)
-  (dolist (n '(6 5 4 3 2 1))
+  (loop for n from 6 downto 1 do
     (when (<= 4 (count n dice))
       (return-from nil (* n 4)))))
 
 (defun small-straight (dice)
-  (unless (member nil (mapcar (lambda (n) (find n dice))
-                              '(1 2 3 4 5)))
+  (unless (member nil (loop for x from 1 to 5 collect (find n dice)))
     15))
 
 (defun large-straight (dice)
-  (unless (member nil (mapcar (lambda (n) (find n dice))
-                              '(2 3 4 5 6)))
+  (unless (member nil (loop for x from 2 to 6 collect (find n dice)))
     20))
 
-(defun house (dice)
-  (let (two three)
-    (loop for n from 1 to 6 do
-      (if (= 2 (count n dice)) (setq two n))
-      (if (= 3 (count n dice)) (setq three n)))
-    (if (and two three)
-      (+ (* 2 two) (* 3 three)))))
+(defun house-2 (dice)
+  (let ((r (loop for n from 1 to 6 collect (count n dice))))
+    (if (and (find 2 r) (find 3 r))
+      (+ (* 2 (1+ (position 2 r)))
+         (* 3 (1+ (position 3 r)))))))
 
 (defun chance (dice)
   (apply #'+ dice))
