@@ -31,11 +31,11 @@
       (return-from nil (* n 4)))))
 
 (defun small-straight (dice)
-  (unless (member nil (loop for x from 1 to 5 collect (find n dice)))
+  (unless (member nil (loop for n from 1 to 5 collect (find n dice)))
     15))
 
 (defun large-straight (dice)
-  (unless (member nil (loop for x from 2 to 6 collect (find n dice)))
+  (unless (member nil (loop for n from 2 to 6 collect (find n dice)))
     20))
 
 (defun house (dice)
