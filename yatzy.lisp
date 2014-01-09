@@ -39,10 +39,12 @@
     20))
 
 (defun house (dice)
-  (let ((r (loop for n from 1 to 6 collect (count n dice))))
-    (if (and (find 2 r) (find 3 r))
-      (+ (* 2 (1+ (position 2 r)))
-         (* 3 (1+ (position 3 r)))))))
+  (let ((l (loop for n from 1 to 6 collect (count n dice))))
+    (let ((two   (position 2 l))
+          (three (position 3 l)))
+      (if (and two three)
+        (+ (* 2 (1+ two))
+           (* 3 (1+ three)))))))
 
 (defun chance (dice)
   (apply #'+ dice))
