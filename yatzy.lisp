@@ -132,8 +132,8 @@
         (setf choices *goals*)
         ;; Remove the choices that are already used.
         (dolist (x boxes)
-          (setf choices (remove-if (lambda (y) (eq (car y) (car x)))
-                                   *goals*)))
+          (setf choices (remove-if (lambda (y) (eq (car x) (car y)))
+                                   choices)))
         ;; Get our choices.
         (setf choices (mapcar (lambda (g)
                                 (cons (car g) (funcall (car g) dice)))
