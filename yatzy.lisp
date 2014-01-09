@@ -42,9 +42,9 @@
   (let ((l (loop for n from 1 to 6 collect (count n dice))))
     (let ((two   (position 2 l))
           (three (position 3 l)))
-      (if (and two three)
-        (+ (* 2 (1+ two))
-           (* 3 (1+ three)))))))
+      (and two three
+           (+ (* 2 (1+ two))
+              (* 3 (1+ three)))))))
 
 (defun chance (dice)
   (apply #'+ dice))
