@@ -15,7 +15,7 @@
       (return-from nil (* n 2)))))
 
 (defun two-pairs (dice)
-  (let ((l (remove-if (lambda (n) (not (>= (count n dice) 2)))
+  (let ((l (remove-if (lambda (n) (< (count n dice) 2))
                       '(1 2 3 4 5 6))))
     (if (= 2 (length l))
       (apply #'+ (mapcar (lambda (n) (* 2 n)) l)))))
