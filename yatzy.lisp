@@ -76,12 +76,6 @@
 (defun all-goal-symbols ()
   (mapcar #'car *goals*))
 
-(defun check-bonus (boxes)
-  (if (>= (apply #'+ (mapcar (lambda (g) (cdr (assoc g boxes)))
-                             '(ones twos threes fours fives sixes)))
-          63)
-    50))
-
 ;; Imperative part
 (defun roll-dice (amount)
   (loop repeat amount collect (1+ (random 6))))
@@ -122,6 +116,7 @@
 
 (defun game-loop ()
   (defvar boxes nil)
+  (defvar bonus-val 0)
   (format t "Welcome to Gosu Yatzy.~%")
   (loop named game do
         ;; Initialize random.
@@ -145,15 +140,15 @@
         (setf choices (remove-if (lambda (x) (null (cdr x)))
                                  choices))
         ;; Print the choices.
-        (loop for n below (length choices) do
+        (loop for i in choices and n from 1 do
               (format t "~a) ~a: ~a~%"
-                      (1+ n)
-                      (goal-string (car (nth n choices)))
-                      (cdr (nth n choices))))
-        (loop for n below (length cross-choices) do
+                      n
+                      (goal-string (car i))
+                      (cdr i)))
+        (loop for i in cross-choices and n from 0 do
               (format t "~a) __~a__~%"
                       (code-char (+ 65 n))
-                      (goal-string (nth n cross-choices))))
+                      (goal-string i)))
         ;; Get a selection.
         (setf selection nil)
         (loop named check do
@@ -176,6 +171,12 @@
                       (format t "Invalid input.~%"))))))
         ;; Update the list of checked boxes.
         (push selection boxes)
+        ;; Update bonus value?
+        (and (cdr selection) ; not crossing
+             (member (car selection)
+                     '(ones twos threes fours fives sixes))
+             (progn (incf bonus-val (cdr selection))
+                    (format t "Bonus: ~a/63~%" bonus-val)))
         ;; Check if it's time to end the game.
         (when (= (length boxes) (length (all-goal-symbols)))
           (format t "Game over.~%")
@@ -187,8 +188,8 @@
                     (or (cdr x) "--")))
           (setf score
                 (apply #'+ (remove-if #'null (mapcar #'cdr boxes))))
-          (setf bonus (check-bonus boxes))
-          (if bonus (incf score bonus))
-          (format t "Bonus: ~a~%" bonus)
+          (if (>= bonus-val 63)
+            (incf score bonus-val))
+          (format t "Bonus: ~a/63~%" bonus-val)
           (format t "Score: ~a~%" score)
           (return-from game))))
