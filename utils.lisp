@@ -1,15 +1,12 @@
-;; (for (x a b) body) {{{
-;; (do ((variable initial update)...) ((test1_body)...) body)
-(defmacro for (l &rest body)
-  `(do ((,(first l) ,(second l) (1+ ,(first l))))
-     ((> ,(first l) ,(third l)))
-     ,@body))
-;; }}}
-
 ;; (rand n) {{{
 (defmacro rand (&rest args)
   `(let ((*random-state* (make-random-state t)))
      (random ,@args)))
+;; }}}
+
+;; (randnth lst) {{{
+(defun randnth (lst)
+  (nth (rand (length lst)) lst))
 ;; }}}
 
 ;; (cdnth (idx lst)) {{{
@@ -47,9 +44,4 @@
 ;; (coinflip) {{{
 (defun coinflip (&rest ignore)
   (> (rand 10) 4))
-;; }}}
-
-;; (randnth lst) {{{
-(defun randnth (lst)
-  (nth (rand (length lst)) lst))
 ;; }}}
