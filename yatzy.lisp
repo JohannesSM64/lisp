@@ -80,39 +80,34 @@
 (defun roll-dice (amount)
   (loop repeat amount collect (1+ (random 6))))
 
-(defun roll-unkept-dice (dice)
-  (append dice (roll-dice (- 5 (length dice)))))
-
 (defun one-turn ()
-  (let ((n 1) dice)
-    (loop named turn repeat 3 do
-          (setf dice (roll-unkept-dice dice))
-          (format t "Roll ~a: " n)
-          (princ dice)
-          (fresh-line)
-          (unless (= 3 n)
-            (loop named roll do
-                  (let (i d)
-                    (princ "Enter which dice to keep: ")
-                    (setf d (read-line))
-                    (when (equal d "all")
-                      (return-from roll))
-                    (setf d (mapcar #'digit-char-p
-                                    (loop for x across d collect x)))
-                    (dolist (x d)
-                      (when (not (member x dice))
-                        (setf i t)))
-                    (dolist (n '(1 2 3 4 5 6))
-                      (when (> (count n d) (count n dice))
-                        (setf i t)))
-                    (if i
+  (loop named turn repeat 3 for n from 1 with dice as nil do
+        (setq dice (append dice (roll-dice (- 5 (length dice)))))
+        (format t "Roll ~a: ~a~%" n dice)
+        (unless (= n 3)
+          (loop named check do
+                (princ "Enter which dice to keep: ")
+                (let ((input (read-line)))
+                  ;; a means keep all dice.
+                  (if (equal input "a") (return-from turn dice))
+                  (let ((inv nil)
+                        ;; Convert the format "123" into (1 2 3).
+                        (l (loop for x across input collect
+                                 (digit-char-p x))))
+                    ;; Check if the player tries to cheat.
+                    (loop for n from 1 to 6 do
+                          (if (> (count n l) (count n dice))
+                            (setq inv t)))
+                    ;; Check for invalid chars.
+                    (dolist (x l)
+                      (or (member x dice)
+                          (setq inv t)))
+                    (if inv
                       (format t "Invalid input.~%")
-                      (progn (setf dice d)
-                             (return-from roll)))))
-            (incf n))
-          (if (= 5 (length dice))
-            (return-from turn)))
-    dice))
+                      (progn (setq dice l)
+                             (return-from check)))))))
+        (if (= 5 (length dice))
+          (return-from turn dice))))
 
 (defun game-loop ()
   (defvar boxes nil)
