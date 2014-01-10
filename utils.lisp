@@ -53,6 +53,9 @@
 (defun append1 (obj lst)
   (append lst (list obj)))
 
+(defun mklist (obj)
+  (if (listp obj) obj (list obj)))
+
 (defun longer (x y)
   (and (consp x)
        (or (null y)
@@ -64,3 +67,10 @@
       (let ((val (funcall fn x)))
         (if val (push val acc))))
     (nreverse acc)))
+
+(defun before (x y lst &key (test #'eql))
+  (and lst
+       (cond ((funcall test (car lst) y) nil)
+             ((funcall test (car lst) x) lst)
+             (t (before x y (cdr lst) :test test)))))
+;; }}}
