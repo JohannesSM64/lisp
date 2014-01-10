@@ -1,7 +1,7 @@
 ;; (rand n) {{{
-(defmacro rand (&rest args)
-  `(let ((*random-state* (make-random-state t)))
-     (random ,@args)))
+(defun rand (n)
+  (let ((*random-state* (make-random-state t)))
+    (random n)))
 ;; }}}
 
 ;; (randnth lst) {{{
@@ -45,3 +45,22 @@
 (defun coinflip (&rest ignore)
   (> (rand 10) 4))
 ;; }}}
+
+;; On Lisp {{{
+(defun last1 (lst)
+  (car (last lst)))
+
+(defun append1 (obj lst)
+  (append lst (list obj)))
+
+(defun longer (x y)
+  (and (consp x)
+       (or (null y)
+           (longer (cdr x) (cdr y)))))
+
+(defun filter (fn lst)
+  (let (acc)
+    (dolist (x lst)
+      (let ((val (funcall fn x)))
+        (if val (push val acc))))
+    (nreverse acc)))
