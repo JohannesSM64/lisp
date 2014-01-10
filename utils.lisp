@@ -1,3 +1,10 @@
+;; (prinf x) {{{
+(defun prinf (x)
+  (let ((r (princ x)))
+    (fresh-line)
+    r))
+;; }}}
+
 ;; (rand n) {{{
 (defun rand (n)
   (let ((*random-state* (make-random-state t)))
