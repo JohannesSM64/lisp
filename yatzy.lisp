@@ -77,43 +77,6 @@
   (mapcar #'car *goals*))
 
 ;; Imperative part
-(defun one-turn ()
-  (loop named turn repeat 3 for n from 1 with dice as nil do
-        ;; Roll the needed amount of dice.
-        (setq dice (append dice (loop repeat (- 5 (length dice))
-                                      collect (1+ (random 6)))))
-        (format t "Roll ~a: ~a~%" n dice)
-        (unless (= n 3)
-          (loop named check do
-                (princ "Enter which dice to keep: ")
-                (let ((input (read-line)))
-                  ;; If no dice are kept, just move on.
-                  (if (string= "" input)
-                    (progn (setq dice nil)
-                           (return-from check)))
-                  ;; a means keep all dice.
-                  (if (equal input "a")
-                    (return-from turn dice))
-                  (let ((inv nil)
-                        ;; Convert the format "123" into (1 2 3).
-                        (l (loop for x across input collect
-                                 (digit-char-p x))))
-                    ;; Check if the player tries to cheat.
-                    (loop for n from 1 to 6 do
-                          (if (> (count n l) (count n dice))
-                            (setq inv t)))
-                    ;; Check for invalid chars.
-                    (dolist (x l)
-                      (or (member x dice)
-                          (setq inv t)))
-                    (if inv
-                      (format t "Invalid input.~%")
-                      (progn (setq dice l)
-                             (return-from check)))))))
-        ;; The user typed in all dice, clearly unaware of "a".
-        (if (= 5 (length dice))
-          (return-from turn dice))))
-
 (defun game-loop ()
   (defvar boxes nil)
   (defvar bonus-val 0)
@@ -122,7 +85,42 @@
         ;; Initialize random.
         (setf *random-state* (make-random-state t))
         ;; Interactively roll the dice.
-        (setf dice (one-turn))
+        (setf dice nil)
+        (loop named turn repeat 3 for n from 1 do
+              ;; Roll the needed amount of dice.
+              (setq dice (append dice (loop repeat (- 5 (length dice))
+                                            collect (1+ (random 6)))))
+              (format t "Roll ~a: ~a~%" n dice)
+              (unless (= n 3)
+                (loop named check do
+                      (princ "Enter which dice to keep: ")
+                      (let ((input (read-line)))
+                        ;; If no dice are kept, just move on.
+                        (if (string= "" input)
+                          (progn (setq dice nil)
+                                 (return-from check)))
+                        ;; a means keep all dice.
+                        (if (equal input "a")
+                          (return-from turn dice))
+                        (let ((inv nil)
+                              ;; Convert the format "123" into (1 2 3).
+                              (l (loop for x across input collect
+                                       (digit-char-p x))))
+                          ;; Check if the player tries to cheat.
+                          (loop for n from 1 to 6 do
+                                (if (> (count n l) (count n dice))
+                                  (setq inv t)))
+                          ;; Check for invalid chars.
+                          (dolist (x l)
+                            (or (member x dice)
+                                (setq inv t)))
+                          (if inv
+                            (format t "Invalid input.~%")
+                            (progn (setq dice l)
+                                   (return-from check)))))))
+              ;; The user typed in all dice, clearly unaware of "a".
+              (if (= 5 (length dice))
+                (return-from turn dice)))
         ;; Initialize choices.
         (setf choices *goals*)
         ;; Remove the choices that are already used.
