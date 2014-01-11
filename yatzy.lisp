@@ -77,19 +77,23 @@
   (mapcar #'car *goals*))
 
 ;; Imperative part
-(defun roll-dice (amount)
-  (loop repeat amount collect (1+ (random 6))))
-
 (defun one-turn ()
   (loop named turn repeat 3 for n from 1 with dice as nil do
-        (setq dice (append dice (roll-dice (- 5 (length dice)))))
+        ;; Roll the needed amount of dice.
+        (setq dice (append dice (loop repeat (- 5 (length dice))
+                                      collect (1+ (random 6)))))
         (format t "Roll ~a: ~a~%" n dice)
         (unless (= n 3)
           (loop named check do
                 (princ "Enter which dice to keep: ")
                 (let ((input (read-line)))
+                  ;; If no dice are kept, just move on.
+                  (if (string= "" input)
+                    (progn (setq dice nil)
+                           (return-from check)))
                   ;; a means keep all dice.
-                  (if (equal input "a") (return-from turn dice))
+                  (if (equal input "a")
+                    (return-from turn dice))
                   (let ((inv nil)
                         ;; Convert the format "123" into (1 2 3).
                         (l (loop for x across input collect
@@ -106,6 +110,7 @@
                       (format t "Invalid input.~%")
                       (progn (setq dice l)
                              (return-from check)))))))
+        ;; The user typed in all dice, clearly unaware of "a".
         (if (= 5 (length dice))
           (return-from turn dice))))
 

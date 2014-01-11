@@ -5,8 +5,12 @@
     "Wine was mixed with water in Ancient Greece"))
 
 (defun test ()
-  (loop (let ((line (randnth *lines*)))
-          (prinf line)
-          (prinf (if (equal (read-line) line)
-                   "=== Correct! ==="
-                   "=== Failed ===")))))
+  (let ((cleared 0))
+    (unwind-protect
+      (loop (let ((line (randnth *lines*)))
+              (prinf line)
+              (if (equal (read-line) line)
+                (progn (incf cleared)
+                       (format t "=== Correct! ===~%" cleared))
+                (prinf "=== Failed! ==="))))
+      (prinf cleared))))
