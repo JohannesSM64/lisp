@@ -6,67 +6,67 @@
              (if (<= 1 (count n dice))
                (* n (count n dice))))))
   (defvar *goals*
-    `((ones "Ones" ,(numfunc 1))
-      (twos "Twos" ,(numfunc 2))
-      (threes "Threes" ,(numfunc 3))
-      (fours "Fours" ,(numfunc 4))
-      (fives "Fives" ,(numfunc 5))
-      (sixes "Sixes" ,(numfunc 6))
-      (one-pair
-        "One pair"
-        ,(lambda (dice)
-           (loop for n from 6 downto 1 do
-                 (when (<= 2 (count n dice))
-                   (return-from nil (* n 2))))))
-      (two-pairs
-        "Two pairs"
-        ,(lambda (dice)
-           (let ((l (remove-if (lambda (n) (< (count n dice) 2))
-                               '(1 2 3 4 5 6))))
-             (if (= 2 (length l))
-               (apply #'+ (mapcar (lambda (n) (* 2 n)) l))))))
-      (three-of-a-kind
-        "Three of a kind"
-        ,(lambda (dice)
-           (loop for n from 6 downto 1 do
-                 (when (<= 3 (count n dice))
-                   (return-from nil (* n 3))))))
-      (four-of-a-kind
-        "Four of a kind"
-        ,(lambda (dice)
-           (loop for n from 6 downto 1 do
-                 (when (<= 4 (count n dice))
-                   (return-from nil (* n 4))))))
-      (small-straight
-        "Small straight"
-        ,(lambda (dice)
-           (unless (member nil (loop for n from 1 to 5
-                                     collect (find n dice)))
-             15)))
-      (large-straight
-        "Large straight"
-        ,(lambda (dice)
-           (unless (member nil (loop for n from 2 to 6
-                                     collect (find n dice)))
-             20)))
-      (house
-        "House"
-        ,(lambda (dice)
-           (let ((l (loop for n from 1 to 6 collect (count n dice))))
-             (let ((two   (position 2 l))
-                   (three (position 3 l)))
-               (and two three
-                    (+ (* 2 (1+ two))
-                       (* 3 (1+ three))))))))
-      (chance
-        "Chance"
-        ,(lambda (dice)
-           (apply #'+ dice)))
-      (yatzy
-        "Yatzy"
-        ,(lambda (dice)
-           (when (apply #'= dice)
-             50))))))
+    (list ('ones "Ones" (numfunc 1))
+          ('twos "Twos" (numfunc 2))
+          ('threes "Threes" (numfunc 3))
+          ('fours "Fours" (numfunc 4))
+          ('fives "Fives" (numfunc 5))
+          ('sixes "Sixes" (numfunc 6))
+          ('one-pair
+           "One pair"
+           (lambda (dice)
+             (loop for n from 6 downto 1 do
+                   (when (<= 2 (count n dice))
+                     (return-from nil (* n 2))))))
+          ('two-pairs
+           "Two pairs"
+           (lambda (dice)
+             (let ((l (remove-if (lambda (n) (< (count n dice) 2))
+                                 '(1 2 3 4 5 6))))
+               (if (= 2 (length l))
+                 (apply #'+ (mapcar (lambda (n) (* 2 n)) l))))))
+          ('three-of-a-kind
+           "Three of a kind"
+           (lambda (dice)
+             (loop for n from 6 downto 1 do
+                   (when (<= 3 (count n dice))
+                     (return-from nil (* n 3))))))
+          ('four-of-a-kind
+           "Four of a kind"
+           (lambda (dice)
+             (loop for n from 6 downto 1 do
+                   (when (<= 4 (count n dice))
+                     (return-from nil (* n 4))))))
+          ('small-straight
+           "Small straight"
+           (lambda (dice)
+             (unless (member nil (loop for n from 1 to 5
+                                       collect (find n dice)))
+               15)))
+          ('large-straight
+           "Large straight"
+           (lambda (dice)
+             (unless (member nil (loop for n from 2 to 6
+                                       collect (find n dice)))
+               20)))
+          ('house
+           "House"
+           (lambda (dice)
+             (let ((l (loop for n from 1 to 6 collect (count n dice))))
+               (let ((two   (position 2 l))
+                     (three (position 3 l)))
+                 (and two three
+                      (+ (* 2 (1+ two))
+                         (* 3 (1+ three))))))))
+          ('chance
+           "Chance"
+           (lambda (dice)
+             (apply #'+ dice)))
+          ('yatzy
+           "Yatzy"
+           (lambda (dice)
+             (when (apply #'= dice)
+               50))))))
 
 (defun goal-string (g)
   (second (assoc g *goals*)))
