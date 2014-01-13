@@ -154,7 +154,7 @@
             (when (member (car selection)
                           '("Ones" "Twos" "Threes"
                             "Fours" "Fives" "Sixes")
-                          :test #'equal)
+                          :test #'string=)
               (progn (incf bonus (cdr selection))
                      (format t "Bonus: ~a/63~%" bonus))))
           ;; Check if it's time to end the game.
@@ -164,9 +164,7 @@
             ;; Sort according to *goals*.
             (dolist (x (mapcar (lambda (x) (assoc x boxes))
                                (mapcar #'first *goals*)))
-              (format t "~a: ~a~%"
-                      x
-                      (or (cdr x) "--")))
+              (format t "~a: ~a~%" x (or (cdr x) "--")))
             (if (>= bonus 63)
               (incf score 50))
             (format t "Bonus: ~a/63~%" bonus)
