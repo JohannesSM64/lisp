@@ -63,7 +63,7 @@
 
 ;; Imperative part
 (defun game-loop ()
-  (let (boxes choices cross-choices selection (score 0) (bonus 0))
+  (let (boxes choices cross-choices selection dice (score 0) (bonus 0))
     (format t "Welcome to Gosu Yatzy.~%")
     (loop named game do
           ;; Initialize random.
@@ -86,7 +86,7 @@
                           ;; a means keep all dice.
                           (if (equal input "a")
                             (return-from turn dice))
-                          (let ((inv nil)
+                          (let (inv
                                 ;; Convert "123" into (1 2 3).
                                 (l (loop for x across input collect
                                          (digit-char-p x))))
