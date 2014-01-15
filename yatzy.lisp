@@ -119,8 +119,9 @@
                                          dice)))
                         choices))
           ;; Separate fulfilled and unfulfilled goals.
-          (setq cross-choices (flatten (remove-if #'cdr choices)))
-          (setq choices (remove-if #'single choices))
+          (multiple-value-bind (a b) (remove-if2 #'single choices)
+            (setq choices a
+                  cross-choices (flatten b)))
           ;; Print the choices.
           (loop for i in choices and n from 1 do
                 (format t "~a) ~a: ~a~%" n (car i) (cdr i)))

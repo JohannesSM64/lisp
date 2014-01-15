@@ -130,3 +130,14 @@
          (values (nreverse acc) src))
       (push (car src) acc))))
 ;; }}}
+
+;; (remove-if2 fn lst) {{{
+(defun remove-if2 (fn lst)
+  (and lst
+       (let (keep disc)
+         (dolist (x lst)
+           (if (funcall fn x)
+             (push x keep)
+             (push x disc)))
+         (values (nreverse disc) (nreverse keep)))))
+;; }}}
