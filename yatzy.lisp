@@ -8,44 +8,44 @@
              (if (<= 1 (count n dice))
                (* n (count n dice))))))
   (defvar *goals*
-    `(("Ones" ,(numfunc 1))
-      ("Twos" ,(numfunc 2))
-      ("Threes" ,(numfunc 3))
-      ("Fours" ,(numfunc 4))
-      ("Fives" ,(numfunc 5))
-      ("Sixes" ,(numfunc 6))
-      ("One pair"
+    `(("Ones" . ,(numfunc 1))
+      ("Twos" . ,(numfunc 2))
+      ("Threes" . ,(numfunc 3))
+      ("Fours" . ,(numfunc 4))
+      ("Fives" . ,(numfunc 5))
+      ("Sixes" . ,(numfunc 6))
+      ("One pair" .
        ,(lambda (dice)
          (loop for n from 6 downto 1 do
-               (when (<= 2 (count n dice))
+               (if (<= 2 (count n dice))
                  (return-from nil (* n 2))))))
-      ("Two pairs"
+      ("Two pairs" .
        ,(lambda (dice)
          (let ((l (remove-if (lambda (n) (< (count n dice) 2))
                              '(1 2 3 4 5 6))))
            (if (= 2 (length l))
              (apply #'+ (mapcar (lambda (n) (* 2 n)) l))))))
-      ("Three of a kind"
+      ("Three of a kind" .
        ,(lambda (dice)
          (loop for n from 6 downto 1 do
-               (when (<= 3 (count n dice))
+               (if (<= 3 (count n dice))
                  (return-from nil (* n 3))))))
-      ("Four of a kind"
+      ("Four of a kind" .
        ,(lambda (dice)
          (loop for n from 6 downto 1 do
-               (when (<= 4 (count n dice))
+               (if (<= 4 (count n dice))
                  (return-from nil (* n 4))))))
-      ("Small straight"
+      ("Small straight" .
        ,(lambda (dice)
          (unless (member nil (loop for n from 1 to 5
                                    collect (find n dice)))
            15)))
-      ("Large straight"
+      ("Large straight" .
        ,(lambda (dice)
          (unless (member nil (loop for n from 2 to 6
                                    collect (find n dice)))
            20)))
-      ("House"
+      ("House" .
        ,(lambda (dice)
          (let ((l (loop for n from 1 to 6 collect (count n dice))))
            (let ((two   (position 2 l))
@@ -53,12 +53,12 @@
              (and two three
                   (+ (* 2 (1+ two))
                      (* 3 (1+ three))))))))
-      ("Chance"
+      ("Chance" .
        ,(lambda (dice)
          (apply #'+ dice)))
-      ("Yatzy"
+      ("Yatzy" .
        ,(lambda (dice)
-         (when (apply #'= dice)
+         (if (apply #'= dice)
            50))))))
 
 ;; Imperative part
@@ -115,7 +115,7 @@
           (setq choices
                 (mapcar (lambda (g)
                           (cons g
-                                (funcall (second (assoc g *goals*))
+                                (funcall (cdr (assoc g *goals*))
                                          dice)))
                         choices))
           ;; Separate fulfilled and unfulfilled goals.
@@ -164,7 +164,7 @@
             (sort boxes (lambda (x y) (null (cdr y))))
             ;; Sort according to *goals*.
             (dolist (x (mapcar (lambda (x) (assoc x boxes))
-                               (mapcar #'first *goals*)))
+                               (mapcar #'car *goals*)))
               (format t "~a: ~a~%" x (or (cdr x) "--")))
             (if (>= bonus 63)
               (incf score 50))
