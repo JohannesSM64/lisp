@@ -85,6 +85,15 @@
         (if val (push val acc))))
     (nreverse acc)))
 
+;; Group list into sublists of length num, with extra elements in a
+;; final list
+(defun group (lst n)
+  (if (zerop n) (error "zero length"))
+  (if lst
+    (if (>= (length lst) n)
+      (cons (subseq lst 0 n) (group (nthcdr n lst) n))
+      (list lst))))
+
 ;; Makes a list of all atoms in a tree
 (defun flatten (x)
   (labels ((rec (x acc)
