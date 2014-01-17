@@ -71,11 +71,13 @@
 (defun mklist (obj)
   (if (listp obj) obj (list obj)))
 
+;; Efficiently checks if list x is longer than y
 (defun longer (x y)
   (and (consp x)
        (or (null y)
            (longer (cdr x) (cdr y)))))
 
+;; Like mapcar with remove-if #'null
 (defun filter (fn lst)
   (let (acc)
     (dolist (x lst)
@@ -83,6 +85,7 @@
         (if val (push val acc))))
     (nreverse acc)))
 
+;; Makes a list of all atoms in a tree
 (defun flatten (x)
   (labels ((rec (x acc)
              (cond ((null x) acc)
@@ -90,6 +93,7 @@
                     (t (rec (car x) (rec (cdr x) acc))))))
     (rec x nil)))
 
+;; Recursive remove-if
 (defun prune (test tree)
   (labels ((rec (tree acc)
                 (cond ((null tree) (nreverse acc))
@@ -102,6 +106,8 @@
                                 (cons (car tree) acc)))))))
     (rec tree nil)))
 
+
+;; Like find-if, but also returns the value returned by the function
 (defun find2 (fn lst)
   (and lst
        (let ((val (funcall fn (car lst))))
@@ -109,35 +115,55 @@
            (values (car lst) val)
            (find2 fn (cdr lst))))))
 
+;; Efficiently checks if x occurs before y
 (defun before (x y lst &key (test #'eql))
   (and lst
        (cond ((funcall test (car lst) y) nil)
              ((funcall test (car lst) x) lst)
              (t (before x y (cdr lst) :test test)))))
 
+;; Or x after y (only this one verifies that both elements occur in the
+;; list; before returns once x is found)
 (defun after (x y lst &key (test #'eql))
   (let ((r (before y x lst :test test)))
     (and r (member x r :test test))))
 
+;; Checks if obj is duplicated in lst
 (defun duplicate (obj lst &key (test #'eql))
   (member obj (cdr (member obj lst :test test))
           :test test))
 
+;; Return elements before and after fn succeeds; primarily useful for
+;; sorted data
 (defun split-if (fn lst)
   (let (acc)
     (do ((src lst (cdr src)))
         ((or (null src) (funcall fn (car src)))
          (values (nreverse acc) src))
       (push (car src) acc))))
+
+;; Non-destructive mapcan; uses append instead of nconc
+(defun mappend (fn &rest lsts)
+  (apply #'append (apply #'mapcar fn lsts)))
+
+;; Recursive mapcar
+(defun rmapcar (fn &rest args)
+  (if (some #'atom args)
+    (apply fn args)
+    (apply #'mapcar
+           (lambda (&rest args)
+             (apply #'rmapcar fn args))
+           args)))
 ;; }}}
 
-;; (remove-if2 fn lst) {{{
-(defun remove-if2 (fn lst)
+;; (remove2 fn lst) {{{
+;; Like remove-if, but also returns the removed elements
+(defun remove2 (fn lst)
   (and lst
        (let (keep disc)
          (dolist (x lst)
            (if (funcall fn x)
-             (push x keep)
-             (push x disc)))
-         (values (nreverse disc) (nreverse keep)))))
+             (push x disc)
+             (push x keep)))
+         (values (nreverse keep) (nreverse disc)))))
 ;; }}}
