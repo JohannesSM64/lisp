@@ -126,10 +126,10 @@
 
 ;; Efficiently checks if x occurs before y
 (defun before (x y lst &key (test #'eql))
-  (and lst
-       (cond ((funcall test (car lst) y) nil)
-             ((funcall test (car lst) x) lst)
-             (t (before x y (cdr lst) :test test)))))
+  (if lst
+    (cond ((funcall test (car lst) y) nil)
+          ((funcall test (car lst) x) lst)
+          (t (before x y (cdr lst) :test test)))))
 
 ;; Or x after y (only this one verifies that both elements occur in the
 ;; list; before returns once x is found)
@@ -142,8 +142,8 @@
   (member obj (cdr (member obj lst :test test))
           :test test))
 
-;; Return elements before and after fn succeeds; primarily useful for
-;; sorted data
+;; Return elements before and after the first that meets a predicate;
+;; primarily useful for sorted data
 (defun split-if (fn lst)
   (let (acc)
     (do ((src lst (cdr src)))

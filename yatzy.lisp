@@ -8,12 +8,9 @@
              (if (<= 1 (count n dice))
                (* n (count n dice))))))
   (defvar *goals*
-    `(("Ones" . ,(numfunc 1))
-      ("Twos" . ,(numfunc 2))
-      ("Threes" . ,(numfunc 3))
-      ("Fours" . ,(numfunc 4))
-      ("Fives" . ,(numfunc 5))
-      ("Sixes" . ,(numfunc 6))
+    `(("Ones" . ,(numfunc 1)) ("Twos" . ,(numfunc 2))
+      ("Threes" . ,(numfunc 3)) ("Fours" . ,(numfunc 4))
+      ("Fives" . ,(numfunc 5)) ("Sixes" . ,(numfunc 6))
       ("One pair" .
        ,(lambda (dice)
          (loop for n from 6 downto 1 do

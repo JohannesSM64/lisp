@@ -1,6 +1,6 @@
 (load "utils.lisp")
 
-(defvar *values* '(A 2 3 4 5 6 7 8 9 10 J Q K))
+(defvar *values* '(2 3 4 5 6 7 8 9 10 J Q K A))
 (defvar *suits* '((clubs  . #\U2663) (diamonds . #\U2666)
                   (hearts . #\U2665) (spades   . #\U2660)))
 
@@ -21,15 +21,22 @@
   (subseq (shuffle deck) 0 5))
 
 (defun check-flush (hand)
-  (let ((lst (mapcar #'card-suit hand)))
-    (not (member nil (mapcar (lambda (x) (eq x (car lst)))
-                             lst)))))
+  (let ((hand (mapcar #'card-suit hand)))
+    (not (member nil (mapcar (lambda (x) (eq x (car hand)))
+                             hand)))))
 
 (defun check-pair (hand)
-  (let ((lst (mapcar #'card-value hand)))
+  (let ((hand (mapcar #'card-value hand)))
     (dolist (v *values*)
-      (if (>= (count v lst) 2)
+      (if (>= (count v hand) 2)
         (return-from nil t)))))
+
+(defun check-straight (hand)
+  (let ((hand (mapcar #'card-value hand)))
+    (loop for n to 8 do
+          (or (member nil (mapcar (lambda (x) (find x hand))
+                                  (subseq *values* n (+ n 5))))
+              (return-from nil t)))))
 
 (defmacro test-func (&rest body)
   `(loop with x = 1 do
