@@ -109,12 +109,11 @@
             (setq choices (remove-if (lambda (y) (eq (car x) y))
                                      choices)))
           ;; Get our choices.
-          (setq choices
-                (mapcar (lambda (g)
-                          (cons g
-                                (funcall (cdr (assoc g *goals*))
-                                         dice)))
-                        choices))
+          (setq choices (mapcar (lambda (g)
+                                  (cons g
+                                        (funcall (cdr (assoc g *goals*))
+                                                 dice)))
+                                choices))
           ;; Separate fulfilled and unfulfilled goals.
           (multiple-value-bind (a b) (remove-if2 #'single choices)
             (setq choices a
