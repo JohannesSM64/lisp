@@ -31,6 +31,18 @@
       (if (>= (count v hand) 2)
         (return-from nil t)))))
 
+(defun check-three-of-a-kind (hand)
+  (let ((hand (mapcar #'card-value hand)))
+    (dolist (v *values*)
+      (if (>= (count v hand) 3)
+        (return-from nil t)))))
+
+(defun check-four-of-a-kind (hand)
+  (let ((hand (mapcar #'card-value hand)))
+    (dolist (v *values*)
+      (if (= (count v hand) 4)
+        (return-from nil t)))))
+
 (defun check-straight (hand)
   (let ((hand (mapcar #'card-value hand)))
     (loop for n to 8 do
