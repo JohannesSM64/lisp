@@ -167,3 +167,5 @@
             (format t "Bonus: ~a/63~%" bonus)
             (format t "Score: ~a~%" score)
             (return-from game)))))
+
+(game-loop)
