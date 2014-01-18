@@ -115,7 +115,7 @@
                                                  dice)))
                                 choices))
           ;; Separate fulfilled and unfulfilled goals.
-          (multiple-value-bind (a b) (remove-if2 #'single choices)
+          (multiple-value-bind (a b) (remove2 #'single choices)
             (setq choices a
                   cross-choices (flatten b)))
           ;; Print the choices.
