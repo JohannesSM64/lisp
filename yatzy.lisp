@@ -16,50 +16,50 @@
       ("Sixes"  . ,(numfunc 6))
       ("One pair" .
        ,(lambda (dice)
-         (loop for n from 6 downto 1 do
-               (if (<= 2 (count n dice))
-                 (return-from nil (* n 2))))))
+          (loop for n from 6 downto 1 do
+                (if (<= 2 (count n dice))
+                  (return-from nil (* n 2))))))
       ("Two pairs" .
        ,(lambda (dice)
-         (let ((l (remove-if (lambda (n) (< (count n dice) 2))
-                             '(1 2 3 4 5 6))))
-           (if (= 2 (length l))
-             (apply #'+ (mapcar (lambda (n) (* 2 n)) l))))))
+          (let ((l (remove-if (lambda (n) (< (count n dice) 2))
+                              '(1 2 3 4 5 6))))
+            (if (= 2 (length l))
+              (apply #'+ (mapcar (lambda (n) (* 2 n)) l))))))
       ("Three of a kind" .
        ,(lambda (dice)
-         (loop for n from 6 downto 1 do
-               (if (<= 3 (count n dice))
-                 (return-from nil (* n 3))))))
+          (loop for n from 6 downto 1 do
+                (if (<= 3 (count n dice))
+                  (return-from nil (* n 3))))))
       ("Four of a kind" .
        ,(lambda (dice)
-         (loop for n from 6 downto 1 do
-               (if (<= 4 (count n dice))
-                 (return-from nil (* n 4))))))
+          (loop for n from 6 downto 1 do
+                (if (<= 4 (count n dice))
+                  (return-from nil (* n 4))))))
       ("Small straight" .
        ,(lambda (dice)
-         (unless (member nil (loop for n from 1 to 5
-                                   collect (find n dice)))
-           15)))
+          (unless (member nil (loop for n from 1 to 5
+                                    collect (find n dice)))
+            15)))
       ("Large straight" .
        ,(lambda (dice)
-         (unless (member nil (loop for n from 2 to 6
-                                   collect (find n dice)))
-           20)))
+          (unless (member nil (loop for n from 2 to 6
+                                    collect (find n dice)))
+            20)))
       ("House" .
        ,(lambda (dice)
-         (let ((l (loop for n from 1 to 6 collect (count n dice))))
-           (let ((two   (position 2 l))
-                 (three (position 3 l)))
-             (and two three
-                  (+ (* 2 (1+ two))
-                     (* 3 (1+ three))))))))
+          (let* ((a     (loop for n from 1 to 6 collect (count n dice)))
+                 (two   (position 2 a))
+                 (three (position 3 a)))
+            (and two three
+                 (+ (* 2 (1+ two))
+                    (* 3 (1+ three)))))))
       ("Chance" .
        ,(lambda (dice)
-         (apply #'+ dice)))
+          (apply #'+ dice)))
       ("Yatzy" .
        ,(lambda (dice)
-         (if (apply #'= dice)
-           50))))))
+          (if (apply #'= dice)
+            50))))))
 
 ;; Imperative part
 (defun game-loop ()

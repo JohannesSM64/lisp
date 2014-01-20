@@ -9,6 +9,9 @@
         (loop for v in *values* collect
               (cons (car s) v))))
 
+(defun make-hand (deck)
+  (loop repeat 5 collect (pop deck)))
+
 (defun card-suit        (card) (car card))
 (defun card-suit-symbol (card) (cdr (assoc (car card) *suits*)))
 (defun card-value       (card) (cdr card))
@@ -17,31 +20,20 @@
   (dolist (c cards)
     (format t "~a~a " (card-suit-symbol c) (card-value c))))
 
-(defun make-hand (deck)
-  (subseq (shuffle deck) 0 5))
-
 (defun check-flush (hand)
   (let ((hand (mapcar #'card-suit hand)))
     (not (member nil (mapcar (lambda (x) (eq x (car hand)))
                              hand)))))
 
-(defun check-pair (hand)
-  (let ((hand (mapcar #'card-value hand)))
-    (dolist (v *values*)
-      (if (>= (count v hand) 2)
-        (return-from nil t)))))
-
-(defun check-three-of-a-kind (hand)
-  (let ((hand (mapcar #'card-value hand)))
-    (dolist (v *values*)
-      (if (>= (count v hand) 3)
-        (return-from nil t)))))
-
-(defun check-four-of-a-kind (hand)
-  (let ((hand (mapcar #'card-value hand)))
-    (dolist (v *values*)
-      (if (= (count v hand) 4)
-        (return-from nil t)))))
+(macrolet ((sames (name n)
+             `(defun ,name (hand)
+                (let ((hand (mapcar #'card-value hand)))
+                  (dolist (v *values*)
+                    (if (>= (count v hand) ,n)
+                      (return-from nil t)))))))
+  (sames check-pair 2)
+  (sames check-three-alike 3)
+  (sames check-four-alike 4))
 
 (defun check-straight (hand)
   (let ((hand (mapcar #'card-value hand)))
@@ -50,9 +42,20 @@
                                   (subseq *values* n (+ n 5))))
               (return-from nil t)))))
 
-(defmacro test-func (&rest body)
+(defun check-two-pairs (hand)
+  (let* ((hand (mapcar #'card-value hand))
+         (l (remove-if (lambda (v) (< (count v hand) 2))
+                        *values*)))
+      (= 2 (length l))))
+
+(defun check-full-house (hand)
+  (let* ((hand (mapcar #'card-value hand))
+         (counts (mapcar (lambda (v) (count v hand)) *values*)))
+    (and (member 2 counts) (member 3 counts) t)))
+
+(defmacro test-func (fn)
   `(loop with x = 1 do
-         (if ,@body
+         (if (,fn (make-hand (shuffle (make-deck))))
            (return-from nil x)
            (incf x))))
 
