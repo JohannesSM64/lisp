@@ -54,8 +54,11 @@
     (and (member 2 counts) (member 3 counts) t)))
 
 (defmacro test-func (fn)
+  `(,fn (make-hand (shuffle (make-deck)))))
+
+(defmacro count-attempts (&rest body)
   `(loop with x = 1 do
-         (if (,fn (make-hand (shuffle (make-deck))))
+         (if ,@body
            (return-from nil x)
            (incf x))))
 
