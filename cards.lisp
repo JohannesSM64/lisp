@@ -42,16 +42,24 @@
                                   (subseq *values* n (+ n 5))))
               (return-from nil t)))))
 
+(defun check-straight-flush (hand)
+  (and (check-straight hand) (check-flush hand)))
+
+(defun check-royal-straight-flush (hand)
+  (and (check-flush hand)
+       (let ((hand (mapcar #'card-value hand)))
+         (not (member nil (mapcar (lambda (x) (member x hand))
+                                  (nthcdr 8 *values*)))))))
+
 (defun check-two-pairs (hand)
   (let* ((hand (mapcar #'card-value hand))
-         (l (remove-if (lambda (v) (< (count v hand) 2))
-                        *values*)))
+         (l (remove-if (lambda (v) (< (count v hand) 2)) *values*)))
       (= 2 (length l))))
 
 (defun check-full-house (hand)
   (let* ((hand (mapcar #'card-value hand))
-         (counts (mapcar (lambda (v) (count v hand)) *values*)))
-    (and (member 2 counts) (member 3 counts) t)))
+         (l (mapcar (lambda (v) (count v hand)) *values*)))
+    (and (member 2 l) (member 3 l))))
 
 (defun test-check (fn)
   (funcall fn (make-hand (shuffle (make-deck)))))
