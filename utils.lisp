@@ -4,18 +4,15 @@
     (fresh-line)
     r))
 ;; }}}
-
 ;; (rand n) {{{
 (defun rand (n)
   (let ((*random-state* (make-random-state t)))
     (random n)))
 ;; }}}
-
 ;; (randnth lst) {{{
 (defun randnth (lst)
   (nth (rand (length lst)) lst))
 ;; }}}
-
 ;; (cdnth (idx lst)) {{{
 (defun cdnth (idx lst)
   (nthcdr idx lst))
@@ -38,7 +35,6 @@
                                        ,store))
                                   `(nthcdr ,idx ,getter)))))
 ;; }}}
-
 ;; (shuffle lst) {{{
 (defun shuffle (lst)
   (let ((l (copy-list lst)))
@@ -47,12 +43,10 @@
                    (nth (rand (length l)) l)))
     l))
 ;; }}}
-
 ;; (coinflip) {{{
 (defun coinflip (&rest ignore)
   (> (rand 10) 4))
 ;; }}}
-
 ;; On Lisp {{{
 (proclaim '(inline last1 single append1 conc1 mklist))
 
@@ -164,7 +158,6 @@
              (apply #'rmapcar fn args))
            args)))
 ;; }}}
-
 ;; (remove2 fn lst) {{{
 ;; Like remove-if, but also returns the removed elements
 (defun remove2 (fn lst)
