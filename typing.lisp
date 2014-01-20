@@ -1,4 +1,4 @@
-(load "utils.lisp")
+(load "utils")
 
 (defvar *lines*
   '("This is not a palindrome"

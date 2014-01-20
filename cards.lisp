@@ -1,4 +1,4 @@
-(load "utils.lisp")
+(load "utils")
 
 (defvar *values* '(2 3 4 5 6 7 8 9 10 J Q K A))
 (defvar *suits* '((clubs  . #\U2663) (diamonds . #\U2666)
