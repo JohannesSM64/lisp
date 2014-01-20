@@ -20,11 +20,6 @@
   (dolist (c cards)
     (format t "~a~a " (card-suit-symbol c) (card-value c))))
 
-(defun check-flush (hand)
-  (let ((hand (mapcar #'card-suit hand)))
-    (not (member nil (mapcar (lambda (x) (eq x (car hand)))
-                             hand)))))
-
 (macrolet ((sames (name n)
              `(defun ,name (hand)
                 (let ((hand (mapcar #'card-value hand)))
@@ -35,12 +30,22 @@
   (sames check-three-alike 3)
   (sames check-four-alike 4))
 
+(defun check-two-pairs (hand)
+  (let* ((hand (mapcar #'card-value hand))
+         (l (remove-if (lambda (v) (< (count v hand) 2)) *values*)))
+      (= 2 (length l))))
+
 (defun check-straight (hand)
   (let ((hand (mapcar #'card-value hand)))
     (loop for n to 8 do
           (or (member nil (mapcar (lambda (x) (find x hand))
                                   (subseq *values* n (+ n 5))))
               (return-from nil t)))))
+
+(defun check-flush (hand)
+  (let ((hand (mapcar #'card-suit hand)))
+    (not (member nil (mapcar (lambda (x) (eq x (car hand)))
+                             hand)))))
 
 (defun check-straight-flush (hand)
   (and (check-straight hand) (check-flush hand)))
@@ -50,11 +55,6 @@
        (let ((hand (mapcar #'card-value hand)))
          (not (member nil (mapcar (lambda (x) (member x hand))
                                   (nthcdr 8 *values*)))))))
-
-(defun check-two-pairs (hand)
-  (let* ((hand (mapcar #'card-value hand))
-         (l (remove-if (lambda (v) (< (count v hand) 2)) *values*)))
-      (= 2 (length l))))
 
 (defun check-full-house (hand)
   (let* ((hand (mapcar #'card-value hand))
