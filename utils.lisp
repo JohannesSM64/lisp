@@ -169,3 +169,9 @@
              (push x keep)))
          (values (nreverse keep) (nreverse disc)))))
 ;; }}}
+;; (while cnd body) {{{
+(defmacro while (cnd &rest body)
+  `(tagbody w
+     ,@body
+     (if ,cnd (go w))))
+;; }}}
