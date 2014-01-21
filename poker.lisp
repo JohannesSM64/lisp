@@ -13,14 +13,12 @@
     deck))
 
 (defun make-hand ()
-  (let (hand nums)
+  (let (hand nums n)
     (loop repeat 5 do
-      (tagbody foo
-        (let ((n (rand 52)))
-          (if (member n nums)
-            (go foo)
-            (progn (push n nums)
-                   (push (aref *deck* n) hand))))))
+      (while (member n nums)
+             (setq n (rand 52)))
+      (push n nums)
+      (push (aref *deck* n) hand))
     hand))
 
 (defun card-suit        (card) (car card))
