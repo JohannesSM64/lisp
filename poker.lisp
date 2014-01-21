@@ -4,15 +4,27 @@
 (defvar *suits* '((clubs  . #\U2663) (diamonds . #\U2666)
                   (hearts . #\U2665) (spades   . #\U2660)))
 (defvar *deck*
-  (loop for s in *suits* append
-        (loop for v in *values* collect
-              (cons (car s) v))))
+  (let ((deck (make-array '(52)))
+        (index 0))
+    (dolist (s *suits*)
+      (dolist (v *values*)
+        (setf (aref deck index) (cons (car s) v)
+              index (1+ index))))
+    deck))
 
-(defun make-deck ()
-  (copy-alist *deck*))
-
-(defun make-hand (deck)
-  (loop repeat 5 collect (pop deck)))
+(defun make-hand ()
+  (let (hand nums (i 0))
+    (tagbody foo
+      (tagbody bar
+        (let ((n (rand 52)))
+          (if (member n nums)
+            (go bar)
+            (progn (push n nums)
+                   (push (aref *deck* n) hand)))))
+      (if (< i 4)
+        (progn (incf i)
+               (go foo))))
+    hand))
 
 (defun card-suit        (card) (car card))
 (defun card-suit-symbol (card) (cdr (assoc (car card) *suits*)))
@@ -63,11 +75,11 @@
                              hand)))))
 
 (defun straight (hand)
-  (let ((hand (mapcar #'card-value hand)))
-    (loop for n to 8 do
-          (or (member nil (mapcar (lambda (x) (find x hand))
-                                  (subseq *values* n (+ n 5))))
-              (return-from nil t)))))
+  (let* ((hand (mapcar #'card-value hand))
+         (checks (mapcar (lambda (x) (if (member x hand) t)) *values*))
+         (seq (nthcdr (position t checks) checks)))
+    (and (>= (length seq) 5)
+         (not (member nil (subseq seq 0 5))))))
 
 (macrolet ((sames (name n)
              `(defun ,name (hand)
@@ -89,9 +101,6 @@
     (dolist (v (reverse *values*))
       (if (member v hand)
         (return-from nil v)))))
-
-(defun test-check (fn)
-  (funcall fn (make-hand (shuffle (make-deck)))))
 
 (defmacro count-attempts (&rest body)
   `(loop with x = 1 do
