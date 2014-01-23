@@ -1,19 +1,15 @@
-;; (prinf x) {{{
 (defun prinf (x)
   (let ((r (princ x)))
     (fresh-line)
     r))
-;; }}}
-;; (rand n) {{{
+
 (defun rand (n)
   (let ((*random-state* (make-random-state t)))
     (random n)))
-;; }}}
-;; (randnth lst) {{{
+
 (defun randnth (lst)
   (nth (rand (length lst)) lst))
-;; }}}
-;; (cdnth (idx lst)) {{{
+
 (defun cdnth (idx lst)
   (nthcdr idx lst))
 
@@ -34,20 +30,17 @@
                                          (progn (rplacd (nthcdr (1- ,idx-temp) ,getter) ,store)))
                                        ,store))
                                   `(nthcdr ,idx ,getter)))))
-;; }}}
-;; (shuffle lst) {{{
+
 (defun shuffle (lst)
   (let ((l (copy-list lst)))
     (loop for n below (length l) do
           (rotatef (nth n l)
                    (nth (rand (length l)) l)))
     l))
-;; }}}
-;; (coinflip) {{{
+
 (defun coinflip (&rest ignore)
   (> (rand 10) 4))
-;; }}}
-;; On Lisp {{{
+
 (proclaim '(inline last1 single append1 conc1 mklist))
 
 (defun last1 (lst)
@@ -157,8 +150,7 @@
            (lambda (&rest args)
              (apply #'rmapcar fn args))
            args)))
-;; }}}
-;; (remove2 fn lst) {{{
+
 ;; Like remove-if, but also returns the removed elements
 (defun remove2 (fn lst)
   (and lst
@@ -168,10 +160,8 @@
              (push x disc)
              (push x keep)))
          (values (nreverse keep) (nreverse disc)))))
-;; }}}
-;; (while cnd body) {{{
+
 (defmacro while (cnd &rest body)
   `(tagbody w
      ,@body
      (if ,cnd (go w))))
-;; }}}
