@@ -102,11 +102,10 @@
           (return-from nil v)))))
 
 (defmacro count-attempts (&rest body)
-  `(loop with x = 1 do
+  `(loop for x from 1 do
          (let ((ret ,@body))
            (if ret
-               (return-from nil (values x ret))
-               (incf x)))))
+               (return-from nil (values x ret))))))
 
 (defun average (lst)
   (/ (apply #'+ lst) (length lst)))
