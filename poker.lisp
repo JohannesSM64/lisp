@@ -16,7 +16,7 @@
   (let (hand nums n)
     (loop repeat 5 do
           (while (member n nums)
-            (setq n (rand 52)))
+            (setq n (random 52)))
           (push n nums)
           (push (aref *deck* n) hand))
     hand))
