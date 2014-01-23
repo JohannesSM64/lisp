@@ -15,10 +15,10 @@
 (defun make-hand ()
   (let (hand nums n)
     (loop repeat 5 do
-	  (while (member n nums)
-	    (setq n (rand 52)))
-	  (push n nums)
-	  (push (aref *deck* n) hand))
+         (while (member n nums)
+           (setq n (rand 52)))
+         (push n nums)
+         (push (aref *deck* n) hand))
     hand))
 
 (defun card-suit        (card) (car card))
@@ -48,14 +48,14 @@
 (defun check-hand (hand)
   (dolist (x *hierarchy*)
     (if (funcall x hand)
-      (return-from nil x))))
+        (return-from nil (values x hand)))))
 
 (defun royal-flush (hand)
   (and (flush hand)
        (let ((rhand (mapcar #'card-value hand)))
          (and (not (member nil (mapcar (lambda (x) (member x rhand))
-				       (nthcdr 8 *values*))))
-	      hand))))
+                                       (nthcdr 8 *values*))))
+              hand))))
 
 (defun straight-flush (hand)
   (and (straight hand) (flush hand) hand))
@@ -68,8 +68,8 @@
 (defun flush (hand)
   (let ((rhand (mapcar #'card-suit hand)))
     (and (not (member nil (mapcar (lambda (x) (eq x (car rhand)))
-				  rhand)))
-	 hand)))
+                                  rhand)))
+         hand)))
 
 (defun straight (hand)
   (let* ((rhand (mapcar #'card-value hand))
@@ -77,14 +77,14 @@
          (seq (nthcdr (position t checks) checks)))
     (and (>= (length seq) 5)
          (and (not (member nil (subseq seq 0 5)))
-	      hand))))
+              hand))))
 
 (macrolet ((sames (name n)
              `(defun ,name (hand)
                 (let ((rhand (mapcar #'card-value hand)))
                   (dolist (v *values*)
                     (if (>= (count v rhand) ,n)
-                      (return-from nil hand)))))))
+                        (return-from nil hand)))))))
   (sames one-pair 2)
   (sames three-alike 3)
   (sames four-alike 4))
@@ -93,19 +93,20 @@
   (let* ((rhand (mapcar #'card-value hand))
          (l (remove-if (lambda (v) (< (count v rhand) 2)) *values*)))
     (if (= 2 (length l))
-	hand)))
+        hand)))
 
 (defun high-card (hand)
   (let ((rhand (mapcar #'card-value hand)))
     (dolist (v (reverse *values*))
       (if (member v rhand)
-        (return-from nil v)))))
+          (return-from nil v)))))
 
 (defmacro count-attempts (&rest body)
   `(loop with x = 1 do
-         (if ,@body
-           (return-from nil x)
-           (incf x))))
+         (let ((ret ,@body))
+           (if ret
+               (return-from nil (values x ret))
+               (incf x)))))
 
 (defun average (lst)
   (/ (apply #'+ lst) (length lst)))
