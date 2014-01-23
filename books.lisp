@@ -1,3 +1,5 @@
+(defvar *books* nil) ; keep compilers happy
+
 (macrolet ((mac (name func)
              `(defun ,name (book)
                 (,func book))))
@@ -16,7 +18,7 @@
   (mac flt-after (> x (year-of y))))
 
 (defun range (x y books)
-  (after x (before y books)))
+  (flt-after x (flt-before y books)))
 
 (macrolet ((mac (name fn key)
              `(defun ,name (books)
