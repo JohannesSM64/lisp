@@ -8,8 +8,8 @@
         (index 0))
     (dolist (s *suits*)
       (dolist (v *values*)
-        (setf (aref deck index) (cons (car s) v)
-              index (1+ index))))
+        (setf (aref deck index) (cons (car s) v))
+        (incf index)))
     deck))
 
 (defun make-hand ()
