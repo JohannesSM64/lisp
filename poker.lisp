@@ -61,8 +61,8 @@
   (and (straight hand) (flush hand) hand))
 
 (defun full-house (hand)
-  (let* ((hand (mapcar #'card-value hand))
-         (l (mapcar (lambda (v) (count v hand)) *values*)))
+  (let* ((rhand (mapcar #'card-value hand))
+         (l (mapcar (lambda (v) (count v rhand)) *values*)))
     (and (member 2 l) (member 3 l) hand)))
 
 (defun flush (hand)
