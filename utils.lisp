@@ -4,7 +4,7 @@
     r))
 
 (defun randnth (lst)
-  (nth (rand (length lst)) lst))
+  (nth (random (length lst)) lst))
 
 (defun cdnth (idx lst)
   (nthcdr idx lst))
@@ -31,11 +31,8 @@
   (let ((l (copy-list lst)))
     (loop for n below (length l) do
           (rotatef (nth n l)
-                   (nth (rand (length l)) l)))
+                   (nth (random (length l)) l)))
     l))
-
-(defun coinflip (&rest ignore)
-  (> (rand 10) 4))
 
 (proclaim '(inline last1 single append1 conc1 mklist))
 
