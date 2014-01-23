@@ -3,10 +3,6 @@
     (fresh-line)
     r))
 
-(defun rand (n)
-  (let ((*random-state* (make-random-state t)))
-    (random n)))
-
 (defun randnth (lst)
   (nth (rand (length lst)) lst))
 
