@@ -41,9 +41,20 @@
     one-pair
     high-card))
 
+(defun sort-hand (hand)
+  (sort hand #'> :key (lambda (x) (position (card-value x) *values*))))
+
 (defun hand> (hand1 hand2)
-  (< (position (check-hand hand1) *hierarchy*)
-     (position (check-hand hand2) *hierarchy*)))
+  (if (< (position (check-hand hand1) *hierarchy*)
+         (position (check-hand hand2) *hierarchy*))
+      t
+      (loop for x in (sort-hand hand1) and y in (sort-hand hand2) do
+            (if (> (position (cdr x) *values*)
+                   (position (cdr y) *values*))
+                (return-from nil t))
+                (if (not (= (position (cdr x) *values*)
+                            (position (cdr y) *values*)))
+                    (return-from nil nil)))))
 
 (defun check-hand (hand)
   (dolist (x *hierarchy*)
