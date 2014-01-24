@@ -41,20 +41,34 @@
     one-pair
     high-card))
 
-(defun sort-hand (hand)
+(defun sort-hand-val (hand)
   (sort hand #'> :key (lambda (x) (position (card-value x) *values*))))
+
+(defun sort-hand-suit (hand)
+  (sort hand #'> :key (lambda (x) (position (card-suit x)
+                                            (mapcar #'car *suits*)))))
 
 (defun hand> (hand1 hand2)
   (if (< (position (check-hand hand1) *hierarchy*)
          (position (check-hand hand2) *hierarchy*))
       t
-      (loop for x in (sort-hand hand1) and y in (sort-hand hand2) do
-            (if (> (position (cdr x) *values*)
-                   (position (cdr y) *values*))
-                (return-from nil t))
-                (if (not (= (position (cdr x) *values*)
-                            (position (cdr y) *values*)))
-                    (return-from nil nil)))))
+      (progn
+        (loop for x in (mapcar #'card-value (sort-hand-val hand1))
+              and y in (mapcar #'card-value (sort-hand-val hand2)) do
+              (if (> (position x *values*)
+                     (position y *values*))
+                  (return-from hand> t)
+                  (if (not (= (position x *values*)
+                              (position y *values*)))
+                      (return-from hand> nil))))
+        (loop for x in (mapcar #'card-suit (sort-hand-suit hand1))
+              and y in (mapcar #'card-suit (sort-hand-suit hand2)) do
+              (if (> (position x (mapcar #'car *suits*))
+                     (position y (mapcar #'car *suits*)))
+                  (return-from hand> t)
+                  (if (not (= (position x (mapcar #'car *suits*))
+                              (position y (mapcar #'car *suits*))))
+                      (return-from hand> nil)))))))
 
 (defun check-hand (hand)
   (dolist (x *hierarchy*)
