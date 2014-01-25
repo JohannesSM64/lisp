@@ -49,31 +49,33 @@
                                             (mapcar #'car *suits*)))))
 
 (defun hand> (hand1 hand2)
-  (if (< (position (check-hand hand1) *hierarchy*)
-         (position (check-hand hand2) *hierarchy*))
-      t
-      (progn
-        (loop for x in (mapcar #'card-value (sort-hand-val hand1))
-              and y in (mapcar #'card-value (sort-hand-val hand2)) do
-              (if (> (position x *values*)
-                     (position y *values*))
-                  (return-from hand> t)
-                  (if (not (= (position x *values*)
-                              (position y *values*)))
-                      (return-from hand> nil))))
-        (loop for x in (mapcar #'card-suit (sort-hand-suit hand1))
-              and y in (mapcar #'card-suit (sort-hand-suit hand2)) do
-              (if (> (position x (mapcar #'car *suits*))
-                     (position y (mapcar #'car *suits*)))
-                  (return-from hand> t)
-                  (if (not (= (position x (mapcar #'car *suits*))
-                              (position y (mapcar #'car *suits*))))
-                      (return-from hand> nil)))))))
+  ;; Compare ranks
+  (let ((x (position (check-hand hand1) *hierarchy*))
+        (y (position (check-hand hand2) *hierarchy*)))
+    (if (not (= x y))
+        (if (< x y)
+            (return-from hand> t)
+            (return-from hand> nil))))
+  ;; Compare values
+  (loop for x in (mapcar #'card-value (sort-hand-val hand1))
+        and y in (mapcar #'card-value (sort-hand-val hand2)) do
+        (if (not (eq x y))
+            (if (after x y *values*)
+                (return-from hand> t)
+                (return-from hand> nil))))
+  ;; Compare suits
+  (loop for x in (mapcar #'card-suit (sort-hand-suit hand1))
+        and y in (mapcar #'card-suit (sort-hand-suit hand2)) do
+        (if (not (eq x y))
+            (if (after x y (mapcar #'car *suits*))
+                (return-from hand> t)
+                (return-from hand> nil))))
+  (error "The hands are identical or something went wrong."))
 
 (defun check-hand (hand)
   (dolist (x *hierarchy*)
     (if (funcall x hand)
-        (return-from nil (values x hand)))))
+        (return-from nil x))))
 
 (defun royal-flush (hand)
   (and (flush hand)
