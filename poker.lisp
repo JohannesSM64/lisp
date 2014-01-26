@@ -3,13 +3,9 @@
 (defvar *suits* '((clubs  . #\U2663) (diamonds . #\U2666)
                   (hearts . #\U2665) (spades   . #\U2660)))
 (defvar *values* '(2 3 4 5 6 7 8 9 10 J Q K A))
-(defvar *deck*
-  (loop for s in *suits* append
-        (loop for v in *values* collect
-              (cons (car s) v))))
-
-(defun make-deck ()
-  (copy-alist *deck*))
+(defvar *deck* (loop for s in *suits* append
+                     (loop for v in *values* collect
+                           (cons (car s) v))))
 
 ;;; If make-hand is a function, deck isn't modified by pop
 (defmacro make-hand (deck)
