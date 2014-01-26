@@ -1,25 +1,19 @@
 (load "utils")
 
-(defvar *values* '(2 3 4 5 6 7 8 9 10 J Q K A))
 (defvar *suits* '((clubs  . #\U2663) (diamonds . #\U2666)
                   (hearts . #\U2665) (spades   . #\U2660)))
+(defvar *values* '(2 3 4 5 6 7 8 9 10 J Q K A))
 (defvar *deck*
-  (let ((deck (make-array '(52)))
-        (index 0))
-    (dolist (s *suits*)
-      (dolist (v *values*)
-        (setf (aref deck index) (cons (car s) v))
-        (incf index)))
-    deck))
+  (loop for s in *suits* append
+        (loop for v in *values* collect
+              (cons (car s) v))))
 
-(defun make-hand ()
-  (let (hand nums n)
-    (loop repeat 5 do
-          (while (member n nums)
-            (setq n (random 52)))
-          (push n nums)
-          (push (aref *deck* n) hand))
-    hand))
+(defun make-deck ()
+  (copy-alist *deck*))
+
+;;; If make-hand is a function, deck isn't modified by pop
+(defmacro make-hand (deck)
+  `(loop repeat 5 collect (pop ,deck)))
 
 (defun card-suit        (card) (car card))
 (defun card-suit-symbol (card) (cdr (assoc (car card) *suits*)))
