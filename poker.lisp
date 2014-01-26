@@ -7,9 +7,8 @@
                      (loop for v in *values* collect
                            (cons (car s) v))))
 
-;;; If make-hand is a function, deck isn't modified by pop
-(defmacro make-hand (deck)
-  `(loop repeat 5 collect (pop ,deck)))
+(defun make-hand (deck)
+  (loop repeat 5 collect (pop deck)))
 
 (defun card-suit        (card) (car card))
 (defun card-suit-symbol (card) (cdr (assoc (car card) *suits*)))
