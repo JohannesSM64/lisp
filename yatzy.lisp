@@ -164,7 +164,7 @@
             ;; Sort according to *goals*.
             (dolist (x (mapcar (lambda (x) (assoc x boxes))
                                (mapcar #'car *goals*)))
-              (format t "~a: ~a~%" x (or (cdr x) "--")))
+              (format t "~a: ~a~%" (car x) (or (cdr x) "--")))
             (if (>= bonus 63)
               (incf score 50))
             (format t "Bonus: ~a/63~%" bonus)
