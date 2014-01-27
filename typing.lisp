@@ -2,7 +2,8 @@
 
 (defvar *lines*
   '("This is not a palindrome"
-    "Wine was mixed with water in Ancient Greece"))
+    "Wine was mixed with water in Ancient Greece"
+    "You've met with a terrible fate, haven't you?"))
 
 (defun test ()
   (let ((cleared 0)
