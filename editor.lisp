@@ -1,18 +1,3 @@
-(defvar *filename* nil)
-(defvar *buffer* "")
-
-(defun read-file (name)
-  (setf *buffer*
-        (if (probe-file name)
-            (with-open-file (f name)
-              (read f))
-            ""))
-  (setf *filename* name))
-
-(defun write-file ()
-  (with-open-file (f *filename* :direction :output)
-    (print *buffer* f)))
-
 (defun alias (x y)
   (setf (symbol-function x) y))
 
@@ -32,6 +17,7 @@
               (#\k (setcursor (1- line) col))
               (#\l (setcursor line (1+ col)))
               (#\0 (setcursor line 0))
+              (#\o (screen:insert-window-line screen:*window*))
               (#\g (setcursor 0 0))
               (#\i (loop (let ((c (cchar (read-char *keyboard-input*))))
                            (if (equal c #\Escape)
