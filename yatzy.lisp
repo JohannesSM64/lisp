@@ -155,8 +155,8 @@
                           '("Ones" "Twos" "Threes"
                             "Fours" "Fives" "Sixes")
                           :test #'string=)
-              (progn (incf bonus (cdr selection))
-                     (format t "Bonus: ~a/63~%" bonus))))
+              (incf bonus (cdr selection))
+              (format t "Bonus: ~a/63~%" bonus)))
           ;; Check if it's time to end the game.
           (when (= (length boxes) (length *goals*))
             (format t "Game over.~%")
