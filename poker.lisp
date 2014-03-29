@@ -64,7 +64,7 @@
             (return-from hand> (if (after x y (mapcar #'car *suits*))
                                    t
                                    nil))))
-  (error "The hands are identical or something went wrong.")))
+  (error "The hands are identical or something went wrong."))
 
 (defun check-hand (hand)
   (dolist (x *hierarchy*)
