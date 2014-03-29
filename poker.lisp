@@ -37,6 +37,11 @@
   (sort hand #'> :key (lambda (x) (position (card-suit x)
                                             (mapcar #'car *suits*)))))
 
+;;; This function should really do different checks depending on ranks;
+;;; i.e. if both hands are one-pair, it should check which pair has the
+;;; highest value (or suit), rather than which hand has the highest card
+;;; overall. It seems this would take a good deal of work to implement,
+;;; so I am lazily leaving this as it is for now.
 (defun hand> (hand1 hand2)
   ;; Compare ranks
   (let ((x (position (check-hand hand1) *hierarchy*))
