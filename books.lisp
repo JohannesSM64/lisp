@@ -21,14 +21,14 @@
   (flt-after x (flt-before y books)))
 
 (macrolet ((mac (name fn key)
-             `(defun ,name (books)
+             `(defun ,name (&optional (books *books*))
                 (let ((temp (copy-list books)))
                   (sort temp ,fn :key ,key)))))
   (mac sort-year #'< #'year-of)
   (mac sort-author #'string-lessp #'author-of)
   (mac sort-name #'string-lessp #'name-of))
 
-(defun fb (books) ; format-books
+(defun fb (&optional (books *books*))   ; format-books
   (dolist (b books)
     (format t "~a: ~a (~a)~%"
             (author-of b) (name-of b) (year-of b))))
