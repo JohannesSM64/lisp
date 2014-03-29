@@ -47,24 +47,24 @@
   (let ((x (position (check-hand hand1) *hierarchy*))
         (y (position (check-hand hand2) *hierarchy*)))
     (if (not (= x y))
-        (if (< x y)
-            (return-from hand> t)
-            (return-from hand> nil))))
+        (return-from hand> (if (< x y)
+                               t
+                               nil))))
   ;; Compare values
   (loop for x in (mapcar #'card-value (sort-hand-val hand1))
         and y in (mapcar #'card-value (sort-hand-val hand2)) do
         (if (not (eq x y))
-            (if (after x y *values*)
-                (return-from hand> t)
-                (return-from hand> nil))))
+            (return-from hand> (if (after x y *values*)
+                                   t
+                                   nil))))
   ;; Compare suits
   (loop for x in (mapcar #'card-suit (sort-hand-suit hand1))
         and y in (mapcar #'card-suit (sort-hand-suit hand2)) do
         (if (not (eq x y))
-            (if (after x y (mapcar #'car *suits*))
-                (return-from hand> t)
-                (return-from hand> nil))))
-  (error "The hands are identical or something went wrong."))
+            (return-from hand> (if (after x y (mapcar #'car *suits*))
+                                   t
+                                   nil))))
+  (error "The hands are identical or something went wrong.")))
 
 (defun check-hand (hand)
   (dolist (x *hierarchy*)
