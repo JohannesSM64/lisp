@@ -18,7 +18,7 @@
   (mac flt-after (> x (year-of y))))
 
 (defun range (x y &optional (books *books*))
-  (sort-year (flt-after x (flt-before y books))))
+  (flt-after x (flt-before y books)))
 
 (macrolet ((mac (name fn key)
              `(defun ,name (&optional (books *books*))
