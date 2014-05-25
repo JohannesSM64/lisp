@@ -33,12 +33,12 @@
     (format t "~a: ~a (~a)~%"
             (author-of b) (name-of b) (year-of b))))
 
-(defun read-books (file)
+(defun read-books (&optional (file "book-list"))
   (with-open-file (f file)
     (setf *books* (read f))))
 
-(defun write-books (file)
+(defun write-books (&optional (file "book-list"))
   (with-open-file (f file :direction :output)
     (print *books* f)))
 
-(read-books "book-list")
+(read-books)
